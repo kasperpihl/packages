@@ -26,6 +26,7 @@ class PaginationProvider extends PureComponent {
       error: false,
       hasMore: false,
     };
+    this.forceSkip = true;
     this.hasLoaded = false;
     this.selector = createCacheSelector(props.cache)
   }
