@@ -40,7 +40,6 @@ class PaginationProvider extends PureComponent {
   }
   componentDidUpdate(prevProps) {
     const { selector, request} = this.props;
-    console.log(request.url !== prevProps.request.url, request.body, prevProps.request.body, shallowEqual(request.body, prevProps.request.body))
     if(this.forceRefresh || request.url !== prevProps.request.url || !shallowEqual(request.body, prevProps.request.body)) {
       if(!this.forceRefresh) {
         this.selector = null;
