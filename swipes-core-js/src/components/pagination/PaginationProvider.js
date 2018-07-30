@@ -7,7 +7,7 @@ import randomString from '../../utils/randomString';
 import createCacheSelector from '../../utils/createCacheSelector';
 import * as ca from '../../actions';
 import PaginationResults from './PaginationResults';
-const DEFAULT_LIMIT = 1;
+const DEFAULT_LIMIT = 20;
 
 export default @connect(state => ({
   isOnline: state.connection.get('status') === 'online',

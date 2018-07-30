@@ -11,7 +11,7 @@ export default function cacheReducer (state = initialState, action) {
 
   switch (type) {
     case types.CACHE_SAVE: {
-      return state.setIn(payload.path, payload.data);
+      return state.setIn(payload.path, fromJS(payload.data));
     }
     case types.CACHE_SAVE_BATCH: {
       payload.data.forEach((d) => {
@@ -29,7 +29,11 @@ export default function cacheReducer (state = initialState, action) {
         const currentVal = state.getIn([type, ...path]);
         // Ensure latest value wins!
         if(!currentVal || currentVal.get('updated_at') < data.updated_at) {
-          state = state.mergeIn([type, ...path], data);
+          if(data.archived) {
+            state = state.deleteIn([type, ...path]);
+          } else {
+            state = state.setIn([type, ...path], fromJS(data));
+          }
         }
       })
       return state;

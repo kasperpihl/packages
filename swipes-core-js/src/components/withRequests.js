@@ -21,11 +21,16 @@ export default options => WrappedComponent => {
   @connect((state, props) => {
     const res = {
       isOnline: state.connection.get('status') === 'online',
+      ready: true,
     };
+
     for(let propName in options) {
       const cachePath = getCachePath(options[propName].cache, props);
       if(cachePath) {
         res[propName] = state.cache.getIn(cachePath);
+        if(typeof res[propName] === 'undefined') {
+          res.ready = false;
+        }
       }
     }
     return res;
@@ -38,7 +43,7 @@ export default options => WrappedComponent => {
       super(props);
       this.state = {
         error: false,
-        ready: false,
+        ready: props.ready,
       };
       this.needFetch = props.isOnline;
     } 
