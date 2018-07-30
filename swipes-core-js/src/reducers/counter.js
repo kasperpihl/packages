@@ -26,7 +26,6 @@ export default function counterReducer(state = initialState, action) {
     }
     case 'update': {
       payload.updates.forEach(({ type, data }) => {
-        console.log(type, data, state.get('discussionTs'));
         if(type !== 'discussion') return;
         const subscription = data.followers.find(f => f.user_id === state.get('myId'));
         if( 

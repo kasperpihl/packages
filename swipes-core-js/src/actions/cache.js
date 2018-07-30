@@ -1,3 +1,4 @@
+import { fromJS } from 'immutable';
 import * as types from '../constants';
 
 // ======================================================
@@ -5,7 +6,7 @@ import * as types from '../constants';
 // ======================================================
 
 export const getSelector = (selector, props) => (d, getState) => {
-  return selector(getState(), props);
+  return selector ? selector(getState(), props) : fromJS([]);
 }
 
 export const saveBatch = (path, data) => {

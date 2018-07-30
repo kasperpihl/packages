@@ -14,6 +14,7 @@ export default (cache, lastValue) => {
   return createSelector(
     [getCachePath],
     (objects) => {
+      if(!objects) return null;
       let orderKey = orderBy;
       if(filter) {
         objects = objects.filter(filter);
@@ -22,10 +23,12 @@ export default (cache, lastValue) => {
         if(orderBy.startsWith('-')) {
           orderKey = orderBy.slice(1);
           objects = sorterDesc(orderKey)(objects);
-          objects = objects.filter(d => d.get(orderKey) >= lastValue);
+          if(lastValue)
+            objects = objects.filter(d => d.get(orderKey) >= lastValue);
         } else {
           objects = sorterAsc(orderKey)(objects);
-          objects = objects.filter(d => d.get(orderKey) <= lastValue);
+          if(lastValue) 
+            objects = objects.filter(d => d.get(orderKey) <= lastValue);
         }
       }
       return objects;

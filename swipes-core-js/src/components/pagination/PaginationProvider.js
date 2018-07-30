@@ -19,7 +19,7 @@ export default @connect(state => ({
 class PaginationProvider extends PureComponent {
   constructor(props) {
     super(props);
-    const { options } = props;
+
     this.state = {
       loadMore: this.loadMore,
       loading: false,
@@ -27,6 +27,7 @@ class PaginationProvider extends PureComponent {
       hasMore: false,
     };
     this.hasLoaded = false;
+    this.selector = createCacheSelector(props.cache)
   }
   componentDidMount() {
     this.fetchResults();
@@ -42,11 +43,8 @@ class PaginationProvider extends PureComponent {
   componentDidUpdate(prevProps) {
     const { selector, request} = this.props;
     if(this.forceRefresh || request.url !== prevProps.request.url || !shallowEqual(request.body, prevProps.request.body)) {
-      if(!this.forceRefresh) {
-        this.selector = null;
-      } else {
-        this.forceSkip = true;
-      }
+      this.forceSkip = true;
+      this.selector = createCacheSelector(this.props.cache);
       this.hasLoaded = false;
       this.forceRefresh = false;
       this.fetchId = null;
@@ -75,8 +73,9 @@ class PaginationProvider extends PureComponent {
     this.fetchId = fetchId;
     const limit = this.props.limit || DEFAULT_LIMIT;
     this.setState({ loading: true, error: false });
+    const currentCache = cacheGetSelector(this.selector, this.props);
     apiRequest(request.url, {
-      skip: (this.selector && !this.forceSkip) ? cacheGetSelector(this.selector, this.props).size : 0,
+      skip: (!this.forceSkip && currentCache) ? currentCache.size : 0,
       limit,
       ...request.body,
     }).then((res) => {
