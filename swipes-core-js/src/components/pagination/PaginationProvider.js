@@ -26,6 +26,7 @@ class PaginationProvider extends PureComponent {
       error: false,
       hasMore: false,
     };
+    this.hasLoaded = false;
   }
   componentDidMount() {
     this.fetchResults();
@@ -46,6 +47,7 @@ class PaginationProvider extends PureComponent {
       } else {
         this.forceSkip = true;
       }
+      this.hasLoaded = false;
       this.forceRefresh = false;
       this.fetchId = null;
       this.setState({
@@ -64,7 +66,7 @@ class PaginationProvider extends PureComponent {
     }
     return newResults;
   }
-  fetchResults = () => {
+  fetchResults = (initial) => {
     const { isOnline, apiRequest, request, cache, cacheSaveBatch, cacheGetSelector } = this.props;
     const { loading } = this.state;
 
@@ -80,6 +82,10 @@ class PaginationProvider extends PureComponent {
     }).then((res) => {
       if(this.fetchId !== fetchId || this._unmounted) return;
       if(res && res.ok) {
+        if(!this.hasLoaded && typeof this.props.onInitialLoad === 'function') {
+          this.props.onInitialLoad();
+          this.hasLoaded = true;
+        }
         this.forceSkip = undefined;
         const newResults = getDeep(res, request.resPath || 'results');
         let path = cache.path;
