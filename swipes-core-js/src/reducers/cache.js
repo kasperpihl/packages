@@ -26,7 +26,11 @@ export default function cacheReducer (state = initialState, action) {
       payload.updates.forEach(({ type, data }) => {
         const path = data.id.split('-');
         path[path.length - 1] = data.id;
-        state = state.mergeIn([type, ...path], data);
+        const currentVal = state.getIn([type, ...path]);
+        // Ensure latest value wins!
+        if(!currentVal || currentVal.get('updated_at') < data.updated_at) {
+          state = state.mergeIn([type, ...path], data);
+        }
       })
       return state;
     }
