@@ -100,6 +100,12 @@ export const request = (options, data) => (d, getState) => {
           if (redirectUrl) {
             res.redirectUrl = redirectUrl;
           }
+          if(res.updates) {
+            d({
+              type: 'update',
+              payload: { updates: res.updates },
+            });
+          }
           d({
             type: command,
             payload: res,

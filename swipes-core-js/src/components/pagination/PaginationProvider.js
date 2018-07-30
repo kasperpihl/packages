@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { fromJS } from 'immutable';
 import { connect } from 'react-redux';
+import shallowEqual from '../../utils/shallowEqual';
 import getDeep from '../../utils/getDeep';
 import randomString from '../../utils/randomString';
 import createCacheSelector from '../../utils/createCacheSelector';
@@ -12,7 +13,7 @@ export default @connect(state => ({
   isOnline: state.connection.get('status') === 'online',
 }), {
   apiRequest: ca.api.request,
-  cacheSave: ca.cache.save,
+  cacheSaveBatch: ca.cache.saveBatch,
   cacheGetSelector: ca.cache.getSelector,
 })
 class PaginationProvider extends PureComponent {
@@ -30,8 +31,7 @@ class PaginationProvider extends PureComponent {
     this.fetchResults();
   }
   componentWillReceiveProps(nextProps) {
-    console.log(this.props.isOnline, nextProps.isOnline);
-    if(!this.props.isOnline && nextProps.isOnline !== this.props.isOnline) {
+    if(!this.props.isOnline && nextProps.isOnline) {
       this.forceRefresh = true;
     }
   }
@@ -40,7 +40,8 @@ class PaginationProvider extends PureComponent {
   }
   componentDidUpdate(prevProps) {
     const { selector, request} = this.props;
-    if(this.forceRefresh || request.body !== prevProps.request.body) {
+    console.log(request.url !== prevProps.request.url, request.body, prevProps.request.body, shallowEqual(request.body, prevProps.request.body))
+    if(this.forceRefresh || request.url !== prevProps.request.url || !shallowEqual(request.body, prevProps.request.body)) {
       if(!this.forceRefresh) {
         this.selector = null;
       } else {
@@ -65,7 +66,7 @@ class PaginationProvider extends PureComponent {
     return newResults;
   }
   fetchResults = () => {
-    const { isOnline, apiRequest, request, cache, cacheSave, cacheGetSelector } = this.props;
+    const { isOnline, apiRequest, request, cache, cacheSaveBatch, cacheGetSelector } = this.props;
     const { loading } = this.state;
 
     if(loading || !isOnline) return;
@@ -82,11 +83,9 @@ class PaginationProvider extends PureComponent {
       if(res && res.ok) {
         this.forceSkip = undefined;
         const newResults = getDeep(res, request.resPath || 'results');
-        newResults.forEach((r) => {
-          let path = cache.path;
-          if(!Array.isArray(path)) path = [path]; 
-          cacheSave([...path, r.id], fromJS(r))
-        });
+        let path = cache.path;
+        if(!Array.isArray(path)) path = [path]; 
+        cacheSaveBatch(path, newResults);
         if(newResults.length) {
           let orderKey = cache.orderBy;
           if(orderKey.startsWith('-')) orderKey = orderKey.slice(1);

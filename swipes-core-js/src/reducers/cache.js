@@ -3,14 +3,6 @@ import * as types from '../constants';
 
 const initialState = fromJS({});
 
-const updateKeyPath = (state, keyPath, data) => {
-  if(!state.getIn(keyPath)) {
-    return state;
-  }
-
-  return state.mergeIn(keyPath, data);
-}
-
 export default function cacheReducer (state = initialState, action) {
   const {
     payload,
@@ -21,12 +13,20 @@ export default function cacheReducer (state = initialState, action) {
     case types.CACHE_SAVE: {
       return state.setIn(payload.path, payload.data);
     }
+    case types.CACHE_SAVE_BATCH: {
+      payload.data.forEach((d) => {
+        state = state.setIn([...payload.path, d.id], fromJS(d));
+      })
+      return state;
+    }
     case types.CACHE_CLEAR: {
       return state.deleteIn(payload.path);
     }
     case 'update': {
-      payload.updates.forEach(({ type, data, id }) => {
-        state = updateKeyPath(state, [type, ...id.split('-')], data);
+      payload.updates.forEach(({ type, data }) => {
+        const path = data.id.split('-');
+        path[path.length - 1] = data.id;
+        state = state.mergeIn([type, ...path], data);
       })
       return state;
     }

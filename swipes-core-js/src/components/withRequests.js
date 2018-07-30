@@ -75,7 +75,7 @@ export default options => WrappedComponent => {
           resCounter++;
           if(initCounter === resCounter) {
             this.isFetching = false;
-            this.setState({ ready: true });
+            !this._unmounted && this.setState({ ready: true });
           }
           if(!res.ok) {
             !this._unmounted && this.setState({ error: true, ready: false });
