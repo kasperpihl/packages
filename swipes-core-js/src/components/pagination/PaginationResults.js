@@ -6,6 +6,12 @@ import { Provider, Consumer } from './PaginationContext';
   results: !!props.selector && props.selector(state, props),
 }))
 export default class PaginationResults extends PureComponent {
+  constructor(props) { 
+    super(props);
+    this.state = {
+      results: props.results,
+    }
+  } 
   renderChildren() {
     const { children } = this.props;
     if(typeof children !== 'function') {
@@ -18,9 +24,17 @@ export default class PaginationResults extends PureComponent {
       </Consumer>
     )
   }
+  componentWillReceiveProps(nextProps) {
+    if(this.props.results !== nextProps.results && !nextProps.pagination.loading) {
+      this.setState({ results: nextProps.results });
+    }
+    if(this.props.pagination.loading && !nextProps.pagination.loading) {
+      this.setState({ results: nextProps.results });
+    }
+  }
   render() {
     const pagination = Object.assign({}, this.props.pagination, {
-      results: this.props.results,
+      results: this.state.results,
     });
     return (
       <Provider value={pagination}>
