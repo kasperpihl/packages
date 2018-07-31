@@ -97,7 +97,7 @@ class PaginationProvider extends PureComponent {
           this.selector = createCacheSelector(cache, newResults[newResults.length - 1][orderKey])
         }
         this.setState({
-          hasMore: newResults.length === limit,
+          hasMore: typeof res.has_more !== 'undefined' ? res.has_more : newResults.length === limit,
           loading: false,
         });
       } else this.setState({ loading: false, error: true });
