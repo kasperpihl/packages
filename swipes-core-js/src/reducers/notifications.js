@@ -40,6 +40,12 @@ export default function notificationsReducer(state = initialState, action) {
     case types.NOTIFICATION_ADD: {
       return state.filter(n => n.get('id') !== payload.id).insert(0, fromJS(payload));
     }
+    case 'notification_added': {
+      return state.filter(n => n.get('id') !== payload.notification.id).insert(0, fromJS(payload.notification));
+    }
+    case 'notification_deleted': {
+      return state.filter(n => n.get('id') !== payload.notification_id)
+    }
     case 'notifications.markAsSeen':
     case 'notifications_seen': {
       const { notification_ids: ids, last_marked: lastMarked } = payload;
