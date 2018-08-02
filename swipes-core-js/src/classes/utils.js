@@ -163,10 +163,10 @@ export function navForContext(id) {
         milestoneId: id,
       },
     };
-  } else if(id.startsWith('P')) {
+  } else if(id.startsWith('D')) {
     return {
-      id: 'PostView',
-      title: 'Post',
+      id: 'DiscussionOverview',
+      title: 'Discussion',
       props: {
         postId: id,
       }
