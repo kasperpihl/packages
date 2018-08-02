@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import * as ca from '../actions';
 
-export default options => WrappedComponent => {
+export default (mapping = {}, options = {}) => WrappedComponent => {
   const getCachePath = (cache, props) => {
     if(cache) {
       let statePath = cache.path;
@@ -24,8 +24,8 @@ export default options => WrappedComponent => {
       ready: true,
     };
 
-    for(let propName in options) {
-      const cachePath = getCachePath(options[propName].cache, props);
+    for(let propName in mapping) {
+      const cachePath = getCachePath(mapping[propName].cache, props);
       if(cachePath) {
         res[propName] = state.cache.getIn(cachePath);
         if(typeof res[propName] === 'undefined') {
@@ -68,9 +68,9 @@ export default options => WrappedComponent => {
       const { apiRequest, cacheSave } = this.props;
       let initCounter = 0;
       let resCounter = 0;
-      for(let propName in options) {
+      for(let propName in mapping) {
         initCounter++;
-        const { request, cache } = options[propName];
+        const { request, cache } = mapping[propName];
         let { body, url, resPath } = request;
         if(typeof body === 'function') {
           body = body(this.props);
@@ -96,14 +96,6 @@ export default options => WrappedComponent => {
       this.setState({ error: false });
     }
     render() {
-      const { renderError, renderLoader } = this.props;
-      if(this.state.error) {
-        return renderError ? renderError(this.props) : null;
-      }
-
-      if(!this.state.ready) {
-        return renderLoader ? renderLoader(this.props) : null;
-      }
       
       const {
         request,
@@ -113,6 +105,8 @@ export default options => WrappedComponent => {
       return (
         <WrappedComponent
           {...rest}
+          requestError={this.state.error}
+          requestReady={this.state.ready}
         />
       )
     }
