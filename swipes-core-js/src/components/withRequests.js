@@ -61,6 +61,10 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
     componentWillUnmount() {
       this._unmounted = true;
     }
+    onRetry = () => {
+      this.needFetch = true;
+      this.runRequests();
+    }
     runRequests() {
       if(!this.needFetch || this.isFetching) return;
       this.isFetching = true;
@@ -78,17 +82,17 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
 
         apiRequest(url, body).then((res) => {
           resCounter++;
-          if(initCounter === resCounter) {
-            this.isFetching = false;
-            !this._unmounted && this.setState({ ready: true });
-          }
           if(!res.ok) {
-            !this._unmounted && this.setState({ error: true, ready: false });
+            !this._unmounted && this.setState({ error: true });
           } else {
             const cachePath = getCachePath(cache, this.props);
             if(cachePath) {
               cacheSave(cachePath, fromJS(res[resPath]));
             }
+          }
+          if(initCounter === resCounter) {
+            this.isFetching = false;
+            !this._unmounted && this.setState({ ready: true });
           }
         })
       }
@@ -105,7 +109,8 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
       return (
         <WrappedComponent
           {...rest}
-          requestError={this.state.error}
+          requestError={this.state.ready && this.state.error}
+          requestRetry={this.onRetry}
           requestReady={this.state.ready}
         />
       )
