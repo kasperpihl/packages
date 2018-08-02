@@ -105,7 +105,7 @@ class PaginationProvider extends PureComponent {
   }
   render() {
     return (
-      <PaginationResults pagination={this.state} selector={this.selector} {...this.props}/>
+      <PaginationResults pagination={this.state} hasLoaded={this.hasLoaded} selector={this.selector} {...this.props}/>
     );
   }
 }

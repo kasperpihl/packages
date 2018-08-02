@@ -25,7 +25,7 @@ export default class PaginationResults extends PureComponent {
     )
   }
   componentWillReceiveProps(nextProps) {
-    if(!nextProps.results || (this.props.results !== nextProps.results && !nextProps.pagination.loading)) {
+    if(this.props.results !== nextProps.results && (!nextProps.pagination.loading || !nextProps.hasLoaded)) {
       this.setState({ results: nextProps.results });
     }
     else if(this.props.pagination.loading && !nextProps.pagination.loading) {

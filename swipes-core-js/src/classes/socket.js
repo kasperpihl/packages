@@ -178,6 +178,7 @@ export default class Socket {
     }
     if (type === 'pong') {
       this.lastPong = new Date().getTime();
+      return;
     }
     if (type === 'token_revoked') {
       const currToken = this.store.getState().connection.get('token');
