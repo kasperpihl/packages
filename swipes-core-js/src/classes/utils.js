@@ -168,7 +168,7 @@ export function navForContext(id) {
       id: 'DiscussionOverview',
       title: 'Discussion',
       props: {
-        postId: id,
+        discussionId: id,
       }
     }
   } else if (id.startsWith('N')) {
