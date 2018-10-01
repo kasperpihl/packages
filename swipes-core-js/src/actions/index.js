@@ -29,7 +29,6 @@ export {
   notifications,
   onboarding,
   organizations,
-  posts,
   steps,
   users,
   ways
