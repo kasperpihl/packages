@@ -4,7 +4,7 @@ const boldText = (id, string, boldStyle) => {
   const obj = {
     id,
     string,
-    className: 'notification-item__styled-button',
+    className: 'notification-item__styled-button'
   };
   if (boldStyle) {
     obj.boldStyle = boldStyle;
@@ -20,20 +20,26 @@ export default class NotificationsGenerator {
   }
   getUserStringMeta(meta, boldStyle) {
     const { users } = this.parent;
-    return boldText('users', users.getNames(meta.get('user_ids'), {
-      preferId: meta.getIn(['last_reaction', 'created_by']),
-      excludeId: 'me',
-      number: 2,
-    }), boldStyle);
+    return boldText(
+      'users',
+      users.getNames(meta.get('user_ids'), {
+        preferId: meta.getIn(['last_reaction', 'created_by']),
+        excludeId: 'me',
+        number: 2
+      }),
+      boldStyle
+    );
   }
   getImportantUserIdFromMeta(meta) {
     let userId;
     const type = meta.get('event_type');
-    if ([
-      'post_reaction_added',
-      'post_comment_added',
-      'post_comment_reaction_added',
-    ].indexOf(type) !== -1) {
+    if (
+      [
+        'post_reaction_added',
+        'post_comment_added',
+        'post_comment_reaction_added'
+      ].indexOf(type) !== -1
+    ) {
       if (meta.getIn(['last_reaction', 'created_by'])) {
         return meta.getIn(['last_reaction', 'created_by']);
       }
@@ -53,17 +59,20 @@ export default class NotificationsGenerator {
   }
   getStyledTextForNotification(n, boldStyle) {
     const meta = n.get('meta');
-    const { users, posts } = this.parent;
     const text = [];
     switch (meta.get('event_type')) {
       case 'goal_assigned': {
         const count = meta.get('step_assign_count') || 0;
         if (count > 0) {
           text.push('You have been assigned to ');
-          text.push(boldText('count', `${count} step${count > 1 ? 's' : ''}`, boldStyle));
+          text.push(
+            boldText('count', `${count} step${count > 1 ? 's' : ''}`, boldStyle)
+          );
           text.push(` in: "${meta.get('goal_title')}"`);
         } else {
-          text.push(`You've been assigned to the goal: "${meta.get('goal_title')}"`);
+          text.push(
+            `You've been assigned to the goal: "${meta.get('goal_title')}"`
+          );
         }
 
         break;
@@ -85,58 +94,13 @@ export default class NotificationsGenerator {
       case 'step_assigned': {
         const count = meta.get('step_assign_count');
         text.push('You have been assigned to ');
-        text.push(boldText('count', `${count} step${count > 1 ? 's' : ''}`, boldStyle));
+        text.push(
+          boldText('count', `${count} step${count > 1 ? 's' : ''}`, boldStyle)
+        );
         text.push(` in: "${meta.get('goal_title')}"`);
         break;
       }
-      case 'post_created': {
-        text.push(boldText('send', users.getName(meta.get('created_by'), { capitalize: true }), boldStyle));
-        text.push(` ${posts.getPostTypeTitle()}`);
 
-        const myId = users.getUser('me').get('id');
-        const mentioned = meta.get('mention_ids').find(id => id === myId);
-
-        if (mentioned) {
-          text.push(' and mentioned ');
-        } else {
-          text.push(' and tagged ');
-        }
-
-        text.push(boldText('users', 'you', boldStyle));
-        text.push(`: "${this.parseMessage(meta.get('message'))}"'`);
-        break;
-      }
-      case 'post_reaction_added': {
-        text.push(this.getUserStringMeta(meta, boldStyle));
-        text.push(` liked your post: "${this.parseMessage(meta.get('message'))}"`);
-        break;
-      }
-      case 'post_comment_added': {
-        text.push(this.getUserStringMeta(meta, boldStyle));
-        const myId = users.getUser('me').get('id');
-        const byMe = meta.get('post_created_by') === myId;
-        const preFix = byMe ? 'your' : posts.getPrefixForType();
-        const followString = byMe ? '' : 'you follow';
-        const mentioned = meta.get('mention_ids').find(id => id === myId);
-
-        if (mentioned) {
-          text.push(` mentioned you in a comment: "${this.parseMessage(meta.get('comment_message'))}"`);
-        } else {
-          text.push(` commented on ${preFix} post ${followString}: "${this.parseMessage(meta.get('post_message'))}"`);
-        }
-
-        break;
-      }
-      case 'post_comment_reaction_added': {
-        text.push(this.getUserStringMeta(meta, boldStyle));
-        text.push(` liked your comment: "${this.parseMessage(meta.get('message'))}"`);
-        break;
-      }
-      case 'post_comment_mention': {
-        text.push(boldText('send', users.getName(meta.get('mentioned_by'), { capitalize: true }), boldStyle));
-        text.push(` mentioned you in a comment: "${this.parseMessage(meta.get('comment_message'))}"`);
-        break;
-      }
       default: {
         console.log('unknown notification', n.toJS());
         text.push('I don\t know what to say (unknown notification)');
@@ -153,11 +117,13 @@ export default class NotificationsGenerator {
     }
     const notif = {
       id: n.get('id'),
-      target: n.get('target').toJS(),
+      target: n.get('target').toJS()
     };
     switch (meta.get('event_type')) {
       case 'post_created': {
-        const name = this.parent.users.getName(meta.get('created_by'), { capitalize: true });
+        const name = this.parent.users.getName(meta.get('created_by'), {
+          capitalize: true
+        });
         const mentioned = meta.get('mention_ids').find(id => id === myId);
 
         if (mentioned) {
@@ -170,7 +136,9 @@ export default class NotificationsGenerator {
         break;
       }
       case 'post_comment_added': {
-        const name = this.parent.users.getName(meta.get('created_by'), { capitalize: true });
+        const name = this.parent.users.getName(meta.get('created_by'), {
+          capitalize: true
+        });
         const mentioned = meta.get('mention_ids').find(id => id === myId);
 
         if (mentioned) {
