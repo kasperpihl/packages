@@ -14,12 +14,18 @@ export default class FilterHandler {
 
     const notifications = state.notifications;
     const lastReadTs = state.me.getIn(['settings', 'last_read_ts']);
-    if (notifications !== this.prevNotifications || lastReadTs !== this.prevLastReadTs) {
+    if (
+      notifications !== this.prevNotifications ||
+      lastReadTs !== this.prevLastReadTs
+    ) {
       this.prevNotifications = this.prevNotifications || List();
       let counter = 0;
 
       notifications.forEach((n, i) => {
-        if (!n.get('seen_at') && (!lastReadTs || lastReadTs < n.get('created_at'))) {
+        if (
+          !n.get('seen_at') &&
+          (!lastReadTs || lastReadTs < n.get('created_at'))
+        ) {
           counter += 1;
         }
       });
@@ -28,10 +34,10 @@ export default class FilterHandler {
       this.prevNotifications = notifications;
       this.prevLastReadTs = lastReadTs;
       if (currUnread !== counter) {
-        this.store.dispatch({ type: types.UPDATE_NOTIFICATION_COUNTER, payload: { counter } });
-        if (window.ipcListener) {
-          window.ipcListener.setBadgeCount(`${counter || ''}`);
-        }
+        this.store.dispatch({
+          type: types.UPDATE_NOTIFICATION_COUNTER,
+          payload: { counter },
+        });
       }
     }
   }
