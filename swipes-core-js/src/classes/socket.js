@@ -168,8 +168,8 @@ export default class Socket {
       payload: {
         status,
         reconnectAttempt: this.reconnect_attempts,
-        nextRetry
-      }
+        nextRetry,
+      },
     });
   }
   message(message) {
@@ -186,14 +186,18 @@ export default class Socket {
     if (type === 'token_revoked') {
       const currToken = this.store.getState().auth.get('token');
       if (payload.token_to_revoke === currToken) {
-        return this.store.disatch({ type: types.RESET_STATE });
+        return this.store.dispatch({ type: types.RESET_STATE });
       }
+    }
+    if (type === 'update' && window && window.ipcListener) {
+      window.ipcListener.handleDesktopNotifications(payload.data);
     }
     const socketData = Object.assign({ ok: true }, payload && payload.data);
     this.store.dispatch({ type, payload: socketData });
 
     this.handleNotifications(payload);
   }
+
   handleNotifications(payload) {
     if (
       payload &&
@@ -202,16 +206,8 @@ export default class Socket {
     ) {
       this.store.dispatch({
         type: types.NOTIFICATION_ADD,
-        payload: payload.notification_data
+        payload: payload.notification_data,
       });
-
-      if (window && window.ipcListener && window.msgGen) {
-        const n = fromJS(payload.notification_data);
-        const nToSend = window.msgGen.notifications.getDesktopNotification(n);
-        if (nToSend) {
-          window.ipcListener.sendNotification(nToSend);
-        }
-      }
     }
   }
   sendPing() {
@@ -223,7 +219,7 @@ export default class Socket {
         this.ws.send(
           JSON.stringify({
             type: 'ping',
-            id: 1
+            id: 1,
           })
         );
       }

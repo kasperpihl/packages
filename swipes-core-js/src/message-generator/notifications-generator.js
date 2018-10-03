@@ -4,7 +4,7 @@ const boldText = (id, string, boldStyle) => {
   const obj = {
     id,
     string,
-    className: 'notification-item__styled-button'
+    className: 'notification-item__styled-button',
   };
   if (boldStyle) {
     obj.boldStyle = boldStyle;
@@ -18,40 +18,8 @@ export default class NotificationsGenerator {
     this.store = store;
     this.parent = parent;
   }
-  getUserStringMeta(meta, boldStyle) {
-    const { users } = this.parent;
-    return boldText(
-      'users',
-      users.getNames(meta.get('user_ids'), {
-        preferId: meta.getIn(['last_reaction', 'created_by']),
-        excludeId: 'me',
-        number: 2
-      }),
-      boldStyle
-    );
-  }
   getImportantUserIdFromMeta(meta) {
-    let userId;
-    const type = meta.get('event_type');
-    if (
-      [
-        'post_reaction_added',
-        'post_comment_added',
-        'post_comment_reaction_added'
-      ].indexOf(type) !== -1
-    ) {
-      if (meta.getIn(['last_reaction', 'created_by'])) {
-        return meta.getIn(['last_reaction', 'created_by']);
-      }
-      userId = meta.getIn(['user_ids', 0]);
-    } else if (['post_created'].indexOf(type) !== -1) {
-      userId = meta.get('created_by');
-    } else if (['post_comment_mention'].indexOf(type) !== -1) {
-      userId = meta.get('mentioned_by');
-    } else {
-      userId = 'me';
-    }
-    return userId;
+    return 'me';
   }
   parseMessage(message) {
     message = message || '';
@@ -107,50 +75,5 @@ export default class NotificationsGenerator {
       }
     }
     return text;
-  }
-  getDesktopNotification(n) {
-    const meta = n.get('meta');
-    const myId = n.get('user_id');
-
-    if (!meta.get('push')) {
-      return undefined;
-    }
-    const notif = {
-      id: n.get('id'),
-      target: n.get('target').toJS()
-    };
-    switch (meta.get('event_type')) {
-      case 'post_created': {
-        const name = this.parent.users.getName(meta.get('created_by'), {
-          capitalize: true
-        });
-        const mentioned = meta.get('mention_ids').find(id => id === myId);
-
-        if (mentioned) {
-          notif.title = `${name} mentioned you in a post`;
-        } else {
-          notif.title = `${name} tagged you on a post`;
-        }
-
-        notif.message = this.parseMessage(meta.get('message'));
-        break;
-      }
-      case 'post_comment_added': {
-        const name = this.parent.users.getName(meta.get('created_by'), {
-          capitalize: true
-        });
-        const mentioned = meta.get('mention_ids').find(id => id === myId);
-
-        if (mentioned) {
-          notif.title = `${name} mentioned you in a comment`;
-        } else {
-          notif.title = `${name} commented on a post you follow`;
-        }
-
-        notif.message = this.parseMessage(meta.get('comment_message'));
-        break;
-      }
-    }
-    return notif;
   }
 }

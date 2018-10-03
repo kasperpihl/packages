@@ -28,8 +28,8 @@ const handleUpdatesNeeded = (payload, state, dispatch) => {
         updateAvailable: payload.update_available,
         updateUrl: payload.update_url,
         reloadRequired: payload.reload_required,
-        reloadAvailable: payload.reload_available
-      }
+        reloadAvailable: payload.reload_available,
+      },
     });
   }
 };
@@ -51,7 +51,7 @@ export const request = (options, data) => (d, getState) => {
     {},
     {
       token: auth.get('token'),
-      organization_id: me.getIn(['organizations', 0, 'id']) || null
+      organization_id: me.getIn(['organizations', 0, 'id']) || null,
     },
     data
   );
@@ -61,14 +61,14 @@ export const request = (options, data) => (d, getState) => {
     return Promise.resolve({
       ok: false,
       update_required: updateRequired,
-      reload_required: reloadRequired
+      reload_required: reloadRequired,
     });
   }
   const apiHeaders = globals.get('apiHeaders');
   const extraHeaders = (apiHeaders && apiHeaders.toJS()) || {};
 
   const headers = new Headers({
-    ...extraHeaders
+    ...extraHeaders,
   });
 
   if (!options.formData) {
@@ -85,7 +85,7 @@ export const request = (options, data) => (d, getState) => {
   const serData = {
     method: 'POST',
     headers,
-    body
+    body,
   };
   let redirectUrl;
   return new Promise((resolve, reject) => {
@@ -113,12 +113,12 @@ export const request = (options, data) => (d, getState) => {
           if (res.updates) {
             d({
               type: 'update',
-              payload: { updates: res.updates }
+              payload: { updates: res.updates },
             });
           }
           d({
             type: command,
-            payload: res
+            payload: res,
           });
         } else {
           if (res.error === 'not_authed') {
@@ -145,8 +145,8 @@ export const serviceRequest = (serviceName, method, parameters, stream) => {
     service: serviceName,
     data: {
       method,
-      parameters
-    }
+      parameters,
+    },
   };
   const req = stream ? 'services.stream' : 'services.request';
   return request(req, options);
