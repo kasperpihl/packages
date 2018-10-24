@@ -1,12 +1,12 @@
 import { request } from './api';
 export const init = () => (d, getState) => {
-  const { me, connection, globals } = getState();
+  const { connection, globals } = getState();
   const forceFullFetch = connection.get('forceFullFetch');
   const withoutNotes = globals.get('withoutNotes');
   const lastConnect = connection.get('lastConnect');
 
   const options = {
-    without_notes: withoutNotes
+    without_notes: withoutNotes,
   };
 
   if (!forceFullFetch && lastConnect) {
@@ -26,7 +26,7 @@ export const handleOAuthSuccess = (serviceName, query) => {
 
   const options = {
     query,
-    service_name: serviceName
+    service_name: serviceName,
   };
 
   return request('services.authsuccess', options);
@@ -40,10 +40,10 @@ export const uploadProfilePhoto = photo => (d, getState) => {
     request(
       {
         command: 'me.uploadProfilePhoto',
-        formData: true
+        formData: true,
       },
       {
-        photo
+        photo,
       }
     )
   );

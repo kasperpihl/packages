@@ -10,7 +10,7 @@ const initialState = fromJS({
   hasConnected: false,
   notificationCounter: 0,
   status: 'offline',
-  versionInfo: {}
+  versionInfo: {},
 });
 const forceRefresh = state =>
   state
@@ -27,8 +27,7 @@ export default function connectionReducer(state = initialState, action) {
       return state
         .set('lastConnect', payload.timestamp)
         .set('forceFullFetch', false)
-        .set('hasConnected', true)
-        .set('readyInOrg', !!payload.me.organizations.length);
+        .set('hasConnected', true);
     }
     case 'me': {
       if (!payload.me.organizations.length) {
@@ -53,12 +52,6 @@ export default function connectionReducer(state = initialState, action) {
     // ======================================================
     // Authorization methods
     // ======================================================
-    case 'organization_updated': {
-      if (state.get('readyInOrg')) {
-        return state;
-      }
-      return forceRefresh(state);
-    }
     case 'organizations.delete':
     case 'organizations.leave':
     case 'user_organization_left':

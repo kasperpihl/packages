@@ -1,10 +1,6 @@
 {
   "name": "@swipesapp/core",
-<<<<<<< HEAD
-  "version": "0.0.25",
-=======
-  "version": "0.0.17",
->>>>>>> 67dd9e2... bumped to 0.0.17
+  "version": "1.0.0",
   "description": "The core connector for Swipes SDK JS",
   "main": "dist/index.js",
   "module": "dist/index.js",

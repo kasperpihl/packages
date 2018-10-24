@@ -1,16 +1,16 @@
 import moment from 'moment';
 
-export default class Milestones {
+export default class Organizations {
   constructor(store, parent) {
     this.store = store;
     this.parent = parent;
   }
   isValid() {
     const org = this.store.getState().me.getIn(['organizations', 0]);
-    if(org) {
+    if (org) {
       const now = moment();
       const endingAt = org.getIn(['trial', 'ending_at']);
-      if(endingAt.diff(now, 'days') < 0) {
+      if (endingAt.diff(now, 'days') < 0) {
         return false;
       }
     }
@@ -18,7 +18,7 @@ export default class Milestones {
   }
   getDaysLeft() {
     const org = this.store.getState().me.getIn(['organizations', 0]);
-    if(org && org.get('trial')) {
+    if (org && org.get('trial')) {
       const now = moment();
       const trial = org.get('trial');
       const endingAt = moment(trial.get('ending_at'));

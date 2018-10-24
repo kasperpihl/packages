@@ -1,17 +1,11 @@
-import { fromJS } from 'immutable';
 import * as types from '../constants';
 
-import { bindAll } from './utils';
 import * as a from '../actions';
-
-const PING_TIMER = 5000;
-const EXPECTED_PONG = 9000;
 
 export default class Socket {
   constructor(store, delegate) {
     this.store = store;
     this.reconnect_attempts = 0;
-    bindAll(this, ['message', 'changeStatus', 'storeChange', 'onCloseHandler']);
     const version = store.getState().globals.get('version');
     // Send in the current version. We use this to check if its different from last open
     store.dispatch({ type: types.SET_LAST_VERSION, payload: { version } });
@@ -21,7 +15,7 @@ export default class Socket {
       window.addEventListener('beforeunload', () => this.forceClose(true));
     }
   }
-  storeChange() {
+  storeChange = () => {
     const { connection, auth } = this.store.getState();
     this.token = auth.get('token');
 
@@ -38,7 +32,7 @@ export default class Socket {
     ) {
       this.timedConnect(this.timerForAttempt());
     }
-  }
+  };
   forceClose(killSocket) {
     if (this.ws && killSocket) {
       this.ws.close();
@@ -46,7 +40,7 @@ export default class Socket {
       this.onCloseHandler();
     }
   }
-  onCloseHandler() {
+  onCloseHandler = () => {
     this.isConnecting = false;
     this.isConnected = false;
     this.reconnect_attempts += 1;
@@ -61,7 +55,7 @@ export default class Socket {
       this.timer = undefined;
     }
     this.changeStatus('offline', nextRetry);
-  }
+  };
   timedConnect(time) {
     if (this.isConnecting || this.hasTimer) {
       return;
@@ -80,12 +74,12 @@ export default class Socket {
     }
 
     if (url.includes('localhost')) {
-      url = 'http://localhost:5000';
+      url = 'ws://localhost:7000';
     }
 
-    this.fetchMe(url);
+    this.openSocket(url);
   }
-  fetchMe(url) {
+  openSocket(url) {
     if (this.isConnecting || this.forceOffline) {
       return;
     }
@@ -93,58 +87,28 @@ export default class Socket {
     this.isConnecting = true;
     this.changeStatus('connecting');
 
-    this.store.dispatch(a.api.request('me')).then(res => {
-      if (res.redirectUrl) {
-        // The api was redirected. Connect to staging
-        this.forceConnectUrl = 'https://staging.swipesapp.com';
-      }
-      if (res.ok) {
-        this.hasOrg = !!res.me.organizations.length;
-        this.openSocket(url);
-      } else {
-        this.onCloseHandler();
-      }
-    });
-  }
-  openSocket(url) {
-    if (!window.WebSocket || this.isSocketConnected) {
-      return this.fetchInit();
+    // If we already have the socket open, close it and try again.
+    if (this.ws) {
+      this.ws.onclose = () => null;
+      this.ws.close();
     }
 
-    if (this.forceConnectUrl) {
-      url = this.forceConnectUrl;
-      this.forceConnectUrl = null;
-    }
-    let wsUrl = `${url.replace(/http(s)?/, 'ws$1')}/ws`;
+    let wsUrl = `${url.replace(/http(s)?/, 'ws$1')}`;
     wsUrl = `${wsUrl}?token=${this.token}`;
 
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
-      this.isSocketConnected = true;
-      this._pingTimer = setInterval(() => {
-        this.sendPing();
-      }, 5000);
       this.fetchInit();
     };
 
     this.ws.onmessage = this.message;
 
     this.ws.onclose = () => {
-      this.lastPong = null;
-      this.isSocketConnected = false;
-      clearInterval(this._pingTimer);
       this.onCloseHandler();
     };
   }
   fetchInit() {
-    if (!this.hasOrg) {
-      this.isConnecting = false;
-      this.isConnected = true;
-      this.reconnect_attempts = 0;
-      this.changeStatus('online');
-      return;
-    }
     this.store.dispatch(a.me.init()).then(res => {
       this.isConnecting = false;
       this.isConnected = true;
@@ -161,7 +125,7 @@ export default class Socket {
       }
     });
   }
-  changeStatus(status, nextRetry) {
+  changeStatus = (status, nextRetry) => {
     this.status = status;
     this.store.dispatch({
       type: types.SET_CONNECTION_STATUS,
@@ -171,18 +135,15 @@ export default class Socket {
         nextRetry,
       },
     });
-  }
-  message(message) {
+  };
+  message = message => {
     const data = JSON.parse(message.data);
     const { type, payload } = data;
 
-    if (!type || (!this.isConnected && type !== 'pong')) {
+    if (!type || !this.isConnected) {
       return;
     }
-    if (type === 'pong') {
-      this.lastPong = new Date().getTime();
-      return;
-    }
+
     if (type === 'token_revoked') {
       const currToken = this.store.getState().auth.get('token');
       if (payload.token_to_revoke === currToken) {
@@ -196,7 +157,7 @@ export default class Socket {
     this.store.dispatch({ type, payload: socketData });
 
     this.handleNotifications(payload);
-  }
+  };
 
   handleNotifications(payload) {
     if (
@@ -208,21 +169,6 @@ export default class Socket {
         type: types.NOTIFICATION_ADD,
         payload: payload.notification_data,
       });
-    }
-  }
-  sendPing() {
-    if (this.ws && this.ws.readyState == this.ws.OPEN) {
-      const now = new Date().getTime();
-      if (this.lastPong && now - this.lastPong > EXPECTED_PONG) {
-        this.forceClose(true);
-      } else {
-        this.ws.send(
-          JSON.stringify({
-            type: 'ping',
-            id: 1,
-          })
-        );
-      }
     }
   }
   timerForAttempt() {
