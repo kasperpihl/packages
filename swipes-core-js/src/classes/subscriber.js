@@ -1,11 +1,8 @@
-import { bindAll } from 'swipes-core-js/classes/utils';
-
 export default class Subscriber {
   constructor() {
-    bindAll(this, ['add', 'remove', 'notify']);
     this._listenersObj = {};
   }
-  notify(id) {
+  notify = (id) => {
     const currentListeners = this._listenersObj[id];
     if (currentListeners) {
       currentListeners.forEach(({ listener }) => {
@@ -14,7 +11,7 @@ export default class Subscriber {
     }
   }
 
-  add(id, listener, ctx) {
+  add = (id, listener, ctx) => {
     if (!id || typeof id !== 'string') {
       return console.warn('Subscriber: add param1 (id): not set or not string', id);
     }
@@ -31,7 +28,7 @@ export default class Subscriber {
 
     return undefined;
   }
-  remove(id, listener, ctx) {
+  remove = (id, listener, ctx) => {
     if (!id && !listener && !ctx) {
       return console.warn('Subscriber: remove: no params provided');
     }

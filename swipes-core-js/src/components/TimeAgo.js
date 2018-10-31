@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { bindAll } from '../classes/utils';
 import timeAgo from '../utils/time/timeAgo';
 
 const MAX = 5000;
@@ -12,7 +11,6 @@ class TimeAgo extends PureComponent {
     this.state = {
       ts: timeAgo(props.date, !!props.simple),
     };
-    bindAll(this, ['updateTimestamp']);
   }
   componentDidMount() {
     this.interval = setInterval(this.updateTimestamp, Math.random() * (MAX - MIN) + MIN);
@@ -25,7 +23,7 @@ class TimeAgo extends PureComponent {
       this.updateTimestamp(nextProps.date, nextProps.simple);
     }
   }
-  updateTimestamp(date, simple) {
+  updateTimestamp = (date, simple) => {
     if(typeof simple === 'undefined') {
       simple = this.props.simple;
     }
