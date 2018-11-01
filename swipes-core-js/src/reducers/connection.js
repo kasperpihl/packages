@@ -1,5 +1,4 @@
 import { fromJS } from 'immutable';
-import { REHYDRATE } from 'redux-persist';
 import * as types from '../constants';
 
 const initialState = fromJS({
