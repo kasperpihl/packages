@@ -1,7 +1,4 @@
-import * as actions from './actions';
 import * as reducers from './reducers';
-import * as selectors from './selectors';
-import * as constants from './constants';
 
 import Socket from './classes/socket';
 import FilterHandler from './classes/filter-handler';
@@ -14,4 +11,4 @@ const init = store => {
   window.filterHandler = new FilterHandler(store);
 };
 
-export { actions, init, reducers, selectors, constants };
+export { init, reducers };
