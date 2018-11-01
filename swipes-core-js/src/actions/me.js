@@ -48,18 +48,3 @@ export const uploadProfilePhoto = photo => (d, getState) => {
     )
   );
 };
-
-export const updateSettings = s =>
-  request('me.updateSettings', { settings: s });
-
-export const updateProfile = p => request('me.updateProfile', { profile: p });
-
-export const togglePinGoal = gId => (d, getState) => {
-  let stars = getState().me.getIn(['settings', 'starred_goals']);
-  if (stars.contains(gId)) {
-    stars = stars.filter(p => p !== gId);
-  } else {
-    stars = stars.push(gId);
-  }
-  return d(updateSettings({ starred_goals: stars.toJS() }));
-};

@@ -3,7 +3,7 @@ import * as types from '../constants';
 import * as a from '../actions';
 
 export default class Socket {
-  constructor(store, delegate) {
+  constructor(store) {
     this.store = store;
     this.reconnect_attempts = 0;
     const version = store.getState().globals.get('version');
