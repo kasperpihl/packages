@@ -1,7 +1,7 @@
 import Socket from './classes/Socket';
 
-const init = store => {
-  window.socket = new Socket(store);
+const init = (store, options = {}) => {
+  window.socket = new Socket(store, options);
 };
 
 export { init };
