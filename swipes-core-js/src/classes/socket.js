@@ -3,8 +3,9 @@ import * as types from '../constants';
 import * as meActions from '../actions/me';
 
 export default class Socket {
-  constructor(store) {
+  constructor(store, options) {
     this.store = store;
+    this.options = options;
     this.reconnect_attempts = 0;
     const version = store.getState().globals.get('version');
     // Send in the current version. We use this to check if its different from last open
@@ -18,9 +19,9 @@ export default class Socket {
   storeChange = () => {
     const { connection, auth } = this.store.getState();
     if (this.token && !auth.get('token')) {
-      options.onAuth && options.onUnauth();
+      this.options.onNotAuthed && this.options.onNotAuthed();
     } else if (!this.token && auth.get('token')) {
-      options.onAuth();
+      this.options.onAuthed && this.options.onAuthed();
     }
     this.token = auth.get('token');
 
