@@ -5,18 +5,20 @@ import shallowEqual from '../../utils/shallowEqual';
 import getDeep from '../../utils/getDeep';
 import randomString from '../../utils/randomString';
 import createCacheSelector from '../../utils/createCacheSelector';
-import * as ca from '../../actions';
 import PaginationResults from './PaginationResults';
 const DEFAULT_LIMIT = 20;
+
+import * as apiActions from '../actions/api';
+import * as cacheActions from '../actions/cache';
 
 @connect(
   state => ({
     isOnline: state.connection.get('status') === 'online',
   }),
   {
-    apiRequest: ca.api.request,
-    cacheSaveBatch: ca.cache.saveBatch,
-    cacheGetSelector: ca.cache.getSelector,
+    apiRequest: apiActions.request,
+    cacheSaveBatch: cacheActions.saveBatch,
+    cacheGetSelector: cacheActions.getSelector,
   }
 )
 export default class PaginationProvider extends PureComponent {
