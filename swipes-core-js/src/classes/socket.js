@@ -1,6 +1,6 @@
 import * as types from '../constants';
 
-import * as a from '../actions';
+import * as meActions from '../actions/me';
 
 export default class Socket {
   constructor(store) {
@@ -109,7 +109,7 @@ export default class Socket {
     };
   }
   fetchInit() {
-    this.store.dispatch(a.me.init()).then(res => {
+    this.store.dispatch(meActions.init()).then(res => {
       this.isConnecting = false;
       this.isConnected = true;
       if (res && res.ok) {
