@@ -18,11 +18,6 @@ export default class Socket {
   }
   storeChange = () => {
     const { connection, auth } = this.store.getState();
-    if (this.token && !auth.get('token')) {
-      this.options.onNotAuthed && this.options.onNotAuthed();
-    } else if (!this.token && auth.get('token')) {
-      this.options.onAuthed && this.options.onAuthed();
-    }
     this.token = auth.get('token');
 
     const forceFullFetch = connection.get('forceFullFetch');
