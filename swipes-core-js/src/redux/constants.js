@@ -12,10 +12,7 @@ export const RESET_STATE = 'RESET_STATE';
 export const SET_LAST_VERSION = 'SET_LAST_VERSION';
 
 // filters
-export const UPDATE_FILTERS = 'UPDATE_FILTERS';
 export const UPDATE_NOTIFICATION_COUNTER = 'UPDATE_NOTIFICATION_COUNTER';
-export const FILTER_UPDATE = 'FILTER_UPDATE';
-export const FILTER_CLEAR = 'FILTER_CLEAR';
 
 // Notification
 export const NOTIFICATION_ADD = 'NOTIFICATION_ADD';

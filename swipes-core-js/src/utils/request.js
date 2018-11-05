@@ -1,41 +1,10 @@
 import * as types from '../redux/constants';
+import storeGet from './store/storeGet';
+import handleUpdatesNeeded from './handleUpdatesNeeded';
 
-const handleUpdatesNeeded = (payload, state, dispatch) => {
-  if (!payload) {
-    return;
-  }
-  const { connection } = state;
-  const updateRequired = connection.getIn(['versionInfo', 'updateRequired']);
-  const updateAvailable = connection.getIn(['versionInfo', 'updateAvailable']);
-  const updateUrl = connection.getIn(['versionInfo', 'updateUrl']);
-  const reloadAvailable = connection.getIn(['versionInfo', 'reloadAvailable']);
-  const reloadRequired = connection.getIn(['versionInfo', 'reloadRequired']);
-  const maintenance = connection.getIn(['versionInfo', 'maintenance']);
-
-  if (
-    payload.update_required !== updateRequired ||
-    payload.update_available !== updateAvailable ||
-    payload.update_url !== updateUrl ||
-    payload.reload_required !== reloadRequired ||
-    payload.reload_available !== reloadAvailable ||
-    payload.maintenance !== maintenance
-  ) {
-    dispatch({
-      type: types.SET_UPDATE_STATUS,
-      payload: {
-        maintenance: payload.maintenance,
-        updateRequired: payload.update_required,
-        updateAvailable: payload.update_available,
-        updateUrl: payload.update_url,
-        reloadRequired: payload.reload_required,
-        reloadAvailable: payload.reload_available,
-      },
-    });
-  }
-};
-
-export const request = (options, data) => (d, getState) => {
-  const apiUrl = `${getState().global.get('apiUrl')}/v1/`;
+export default (options, data) => {
+  const store = storeGet();
+  const apiUrl = `${store.getState().global.get('apiUrl')}/v1/`;
   let command;
   if (typeof options !== 'object') {
     command = `${options}`;
@@ -46,9 +15,8 @@ export const request = (options, data) => (d, getState) => {
 
   options = options || {};
 
-  const { auth, connection, me, globals } = getState();
+  const { auth, connection, me, global } = store.getState();
   let body = Object.assign(
-    {},
     {
       token: auth.get('token'),
       organization_id: me.getIn(['organizations', 0, 'id']) || null,
@@ -64,7 +32,7 @@ export const request = (options, data) => (d, getState) => {
       reload_required: reloadRequired,
     });
   }
-  const apiHeaders = globals.get('apiHeaders');
+  const apiHeaders = global.get('apiHeaders');
   const extraHeaders = (apiHeaders && apiHeaders.toJS()) || {};
 
   const headers = new Headers({
@@ -106,23 +74,23 @@ export const request = (options, data) => (d, getState) => {
       })
       .then(res => {
         if (res && res.ok) {
-          handleUpdatesNeeded(res, getState(), d);
+          handleUpdatesNeeded(res, store.getState(), store.dispatch);
           if (redirectUrl) {
             res.redirectUrl = redirectUrl;
           }
           if (res.updates) {
-            d({
+            store.dispatch({
               type: 'update',
               payload: { updates: res.updates },
             });
           }
-          d({
+          store.dispatch({
             type: command,
             payload: res,
           });
         } else {
           if (res.error === 'not_authed') {
-            d({ type: types.RESET_STATE });
+            store.dispatch({ type: types.RESET_STATE });
           }
           return Promise.reject({ message: res.error });
         }
@@ -131,26 +99,10 @@ export const request = (options, data) => (d, getState) => {
         resolve(res);
       })
       .catch(e => {
-        if (getState().global.get('isDev')) {
+        if (store.getState().global.get('isDev')) {
           console.warn(command, e);
         }
         resolve({ ok: false, error: e.message || 'unknown error' });
       });
   });
 };
-
-export const serviceRequest = (serviceName, method, parameters, stream) => {
-  // console.log('args from actions', serviceName, method, parameters);
-  const options = {
-    service: serviceName,
-    data: {
-      method,
-      parameters,
-    },
-  };
-  const req = stream ? 'services.stream' : 'services.request';
-  return request(req, options);
-};
-
-export const serviceStream = (serviceName, method, parameters) =>
-  serviceRequest(serviceName, method, parameters, true);

@@ -1,13 +1,13 @@
-import * as types from '../constants';
-
-import * as meActions from '../actions/me';
+import * as types from '../redux/constants';
+import request from '../utils/request';
 
 export default class Socket {
   constructor(store, options) {
+    window.socket = this;
     this.store = store;
     this.options = options;
     this.reconnect_attempts = 0;
-    const version = store.getState().globals.get('version');
+    const version = store.getState().global.get('version');
     // Send in the current version. We use this to check if its different from last open
     store.dispatch({ type: types.SET_LAST_VERSION, payload: { version } });
     store.subscribe(this.storeChange);
@@ -67,7 +67,7 @@ export default class Socket {
   }
   connect() {
     const { getState } = this.store;
-    let url = getState().globals.get('apiUrl');
+    let url = getState().global.get('apiUrl');
 
     if (!url) {
       console.warn('Socket requires globals reducer to have apiUrl to be set');
@@ -110,7 +110,11 @@ export default class Socket {
     };
   }
   fetchInit() {
-    this.store.dispatch(meActions.init()).then(res => {
+    const { connection } = this.store.getState();
+
+    request('init', {
+      timestamp: connection.get('lastConnect') || null,
+    }).then(res => {
       this.isConnecting = false;
       this.isConnected = true;
       if (res && res.ok) {

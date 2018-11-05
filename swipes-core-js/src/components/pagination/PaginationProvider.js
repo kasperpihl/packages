@@ -1,14 +1,13 @@
 import React, { PureComponent } from 'react';
-import { fromJS } from 'immutable';
 import { connect } from 'react-redux';
 import shallowEqual from '../../utils/shallowEqual';
 import getDeep from '../../utils/getDeep';
+import apiRequest from '../../utils/request';
 import randomString from '../../utils/randomString';
 import createCacheSelector from '../../utils/createCacheSelector';
 import PaginationResults from './PaginationResults';
 const DEFAULT_LIMIT = 20;
 
-import * as apiActions from '../actions/api';
 import * as cacheActions from '../actions/cache';
 
 @connect(
@@ -16,7 +15,6 @@ import * as cacheActions from '../actions/cache';
     isOnline: state.connection.get('status') === 'online',
   }),
   {
-    apiRequest: apiActions.request,
     cacheSaveBatch: cacheActions.saveBatch,
     cacheGetSelector: cacheActions.getSelector,
   }
@@ -47,7 +45,7 @@ export default class PaginationProvider extends PureComponent {
     this.fetchResults();
   };
   componentDidUpdate(prevProps) {
-    const { selector, request } = this.props;
+    const { request } = this.props;
     if (
       this.forceRefresh ||
       request.url !== prevProps.request.url ||
@@ -80,7 +78,6 @@ export default class PaginationProvider extends PureComponent {
   fetchResults = initial => {
     const {
       isOnline,
-      apiRequest,
       request,
       cache,
       cacheSaveBatch,

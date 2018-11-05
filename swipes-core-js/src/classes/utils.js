@@ -67,23 +67,6 @@ export function hasMinorChange(current, last) {
   return current.major > last.major || current.minor > last.minor;
 }
 
-export function reducerInitToMap(payload, key, state) {
-  let collection = Map();
-  if (!payload.full_fetch) {
-    collection = state;
-  }
-  if (payload[key]) {
-    payload[key].forEach(obj => {
-      collection = collection.set(obj.id, fromJS(obj));
-      if (obj.archived || obj.deleted) {
-        collection = collection.delete(obj.id);
-      }
-    });
-  }
-
-  return collection;
-}
-
 export const URL_REGEX = /(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?/gim;
 
 export function valAction(actionName, arrayArgs, actionHandler) {
@@ -104,11 +87,7 @@ export function valAction(actionName, arrayArgs, actionHandler) {
 }
 
 export function miniIconForId(id) {
-  if (id.startsWith('G')) {
-    return 'MiniGoal';
-  } else if (id.startsWith('M')) {
-    return 'MiniMilestone';
-  } else if (id.startsWith('N')) {
+  if (id.startsWith('N')) {
     return 'MiniNote';
   } else if (id.startsWith('F')) {
     return 'MiniFile';
@@ -118,11 +97,7 @@ export function miniIconForId(id) {
 }
 
 export function iconForId(id) {
-  if (id.startsWith('G')) {
-    return 'Goals';
-  } else if (id.startsWith('M')) {
-    return 'Milestones';
-  } else if (id.startsWith('N')) {
+  if (id.startsWith('N')) {
     return 'Note';
   } else if (id.startsWith('F')) {
     return 'File';
@@ -132,58 +107,10 @@ export function iconForId(id) {
 }
 
 export function typeForId(id) {
-  if (id.startsWith('G')) {
-    return 'Goal';
-  } else if (id.startsWith('M')) {
-    return 'Milestone';
-  } else if (id.startsWith('N')) {
+  if (id.startsWith('N')) {
     return 'Note';
   } else if (id.startsWith('F')) {
     return 'File';
-  }
-}
-
-export function navForContext(id) {
-  let title;
-  if (typeof id === 'object') {
-    title = id.get('title');
-    id = id.get('id');
-  }
-  if (id.startsWith('G')) {
-    return {
-      id: 'GoalOverview',
-      title: 'Goal overview',
-      props: {
-        goalId: id,
-      },
-    };
-  } else if (id.startsWith('M')) {
-    return {
-      id: 'PlanOverview',
-      title: 'Plan overview',
-      props: {
-        milestoneId: id,
-      },
-    };
-  } else if (id.startsWith('D')) {
-    return {
-      id: 'DiscussionOverview',
-      title: 'Discussion',
-      props: {
-        discussionId: id,
-      },
-    };
-  } else if (id.startsWith('N')) {
-    return {
-      id: 'SideNote',
-      title: 'Note',
-      props: {
-        id,
-        title,
-      },
-    };
-  } else if (id.startsWith('F')) {
-    return 'MiniFile';
   }
 }
 
