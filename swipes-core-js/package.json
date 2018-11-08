@@ -1,6 +1,6 @@
 {
   "name": "@swipesapp/core",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "The core connector for Swipes SDK JS",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -12,12 +12,13 @@
   },
   "author": "Swipes Team",
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-decorators-legacy": "^1.3.5",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
     "react": "^16.3.1",
     "rimraf": "^2.6.2"
   },

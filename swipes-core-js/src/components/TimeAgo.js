@@ -9,30 +9,33 @@ class TimeAgo extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      ts: timeAgo(props.date, !!props.simple),
+      ts: timeAgo(props.date, !!props.simple)
     };
   }
   componentDidMount() {
-    this.interval = setInterval(this.updateTimestamp, Math.random() * (MAX - MIN) + MIN);
+    this.interval = setInterval(
+      this.updateTimestamp,
+      Math.random() * (MAX - MIN) + MIN
+    );
   }
   componentWillUnmount() {
     clearInterval(this.interval);
   }
   componentWillReceiveProps(nextProps) {
-    if(nextProps.date !== this.props.date){
+    if (nextProps.date !== this.props.date) {
       this.updateTimestamp(nextProps.date, nextProps.simple);
     }
   }
   updateTimestamp = (date, simple) => {
-    if(typeof simple === 'undefined') {
+    if (typeof simple === 'undefined') {
       simple = this.props.simple;
     }
     date = date || this.props.date;
     const ts = timeAgo(date, !!simple);
-    if(ts !== this.state.ts) {
-      this.setState({ ts });
+    if (ts !== this.state.ts) {
+      this.setState({ ts });
     }
-  }
+  };
   render() {
     const {
       date,
@@ -40,14 +43,18 @@ class TimeAgo extends PureComponent {
       Node = 'span',
       prefix,
       postfix,
-      ...rest,
+      ...rest
     } = this.props;
     const { ts } = this.state;
 
     return (
-      <Node {...rest}>{prefix || ''}{ts}{postfix || ''}</Node>
+      <Node {...rest}>
+        {prefix || ''}
+        {ts}
+        {postfix || ''}
+      </Node>
     );
   }
 }
 
-export default TimeAgo
+export default TimeAgo;
