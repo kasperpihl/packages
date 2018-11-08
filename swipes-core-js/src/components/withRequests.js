@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react';
 import { fromJS } from 'immutable';
 import { connect } from 'react-redux';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import * as apiActions from '../actions/api';
-import * as cacheActions from '../actions/cache';
+import apiRequest from '../utils/request';
+import * as cacheActions from '../redux/cache/cacheActions';
 
 export default (mapping = {}, options = {}) => WrappedComponent => {
   const getCachePath = (cache, props) => {
@@ -37,7 +37,6 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
     },
     {
       cacheSave: cacheActions.save,
-      apiRequest: apiActions.request,
     }
   )
   class withRequests extends PureComponent {
@@ -71,7 +70,7 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
       if (!this.needFetch || this.isFetching) return;
       this.isFetching = true;
       this.needFetch = false;
-      const { apiRequest, cacheSave } = this.props;
+      const { cacheSave } = this.props;
       let initCounter = 0;
       let resCounter = 0;
       for (let propName in mapping) {
@@ -103,6 +102,9 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
     }
     render() {
       const { request, ...rest } = this.props;
+      if (options.renderLoader && !this.state.ready) {
+        return options.renderLoader();
+      }
 
       return (
         <WrappedComponent
