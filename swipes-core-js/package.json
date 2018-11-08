@@ -1,6 +1,6 @@
 {
   "name": "@swipesapp/core",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "The core connector for Swipes SDK JS",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -19,17 +19,17 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
-    "react": "^16.3.1",
+    "react": "^16.6.1",
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "fuse.js": "^3.0.5",
-    "hoist-non-react-statics": "^3.0.0",
-    "immutable": "^3.8.2",
-    "re-reselect": "^2.1.0",
-    "react-redux": "^5.0.7",
-    "reselect": "^3.0.1",
-    "swiss-react": "^0.3.0",
+    "fuse.js": "^3.3.0",
+    "hoist-non-react-statics": "^3.1.0",
+    "immutable": "^4.0.0-rc.12",
+    "re-reselect": "^2.2.0",
+    "react-redux": "^5.1.0",
+    "reselect": "^4.0.0",
+    "swiss-react": "^0.3.4",
     "valjs": "0.0.28"
   }
 }

@@ -39,7 +39,7 @@ export function getFuzzyOptionsWithKeys(keys) {
       threshold: 0.5,
       // distance: 1000,
       maxPatternLength: 32,
-      minMatchCharLength: 2,
+      minMatchCharLength: 2
     },
     { keys }
   );
@@ -54,7 +54,7 @@ export const parseVersionString = version => {
   return {
     major,
     minor,
-    patch,
+    patch
   };
 };
 
@@ -217,7 +217,7 @@ export function setupLoading(ctx) {
       clearLoading: this.clearLoading,
       setLoading: this.setLoading,
       bindLoading: this.bindLoading,
-      _loadingStates,
+      _loadingStates
     };
   }
   function updateLoadingState(name, prop, label, duration, callback) {
