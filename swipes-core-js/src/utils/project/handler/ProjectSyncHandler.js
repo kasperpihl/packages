@@ -2,7 +2,7 @@ import debounce from 'src/utils/debounce';
 import request from 'src/utils/request';
 import randomString from 'src/utils/randomString';
 
-export default class ProjectKeyHandler {
+export default class ProjectSyncHandler {
   constructor(stateManager) {
     this.stateManager = stateManager;
     this.currentServerState = stateManager.getClientState();

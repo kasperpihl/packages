@@ -23,7 +23,6 @@ export default WrappedComponent => {
     };
     generateProps = () => {
       const stateManager = this.stateManager; // this.context;
-      console.log('with', stateManager, this);
       const { taskId } = this.props;
       const clientState = stateManager.getClientState();
       const localState = stateManager.getLocalState();
