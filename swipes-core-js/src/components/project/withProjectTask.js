@@ -6,7 +6,7 @@ import ProjectContext from './ProjectContext';
 
 export default WrappedComponent => {
   class WithProjectTask extends PureComponent {
-    static contextType = ProjectContext;
+    // static contextType = ProjectContext;
     componentDidMount() {
       const stateManager = this.stateManager; // this.context;
       this.unsubscribe = stateManager.subscribe(this.checkRerender);
@@ -23,6 +23,7 @@ export default WrappedComponent => {
     };
     generateProps = () => {
       const stateManager = this.stateManager; // this.context;
+      console.log('with', stateManager, this);
       const { taskId } = this.props;
       const clientState = stateManager.getClientState();
       const localState = stateManager.getLocalState();
