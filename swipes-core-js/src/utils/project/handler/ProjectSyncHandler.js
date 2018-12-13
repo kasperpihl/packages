@@ -47,7 +47,7 @@ export default class ProjectSyncHandler {
         server.order[taskId] = cOrder;
       }
       if (sIndent !== cIndent) {
-        server.indent[taskId] = cIndent;
+        server.indention[taskId] = cIndent;
       }
       if ((!sCompletion && cCompletion) || (sCompletion && !cCompletion)) {
         server.completion[taskId] = cCompletion;
@@ -60,7 +60,7 @@ export default class ProjectSyncHandler {
 
     this.deletedIds.forEach(id => {
       server.tasks_by_id[id] = null;
-      server.indent[id] = null;
+      server.indention[id] = null;
       server.order[id] = null;
       server.completion[id] = null;
     });
