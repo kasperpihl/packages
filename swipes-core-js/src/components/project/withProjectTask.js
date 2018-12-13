@@ -8,7 +8,7 @@ export default WrappedComponent => {
   class WithProjectTask extends PureComponent {
     static contextType = ProjectContext;
     componentDidMount() {
-      const stateManager = this.context;
+      const stateManager = this.stateManager; // this.context;
       this.unsubscribe = stateManager.subscribe(this.checkRerender);
     }
     componentWillUnmount() {
@@ -22,7 +22,7 @@ export default WrappedComponent => {
       }
     };
     generateProps = () => {
-      const stateManager = this.context;
+      const stateManager = this.stateManager; // this.context;
       const { taskId } = this.props;
       const clientState = stateManager.getClientState();
       const localState = stateManager.getLocalState();
@@ -61,16 +61,23 @@ export default WrappedComponent => {
       }
     );
     render() {
-      if (!this.generatedProps) {
-        this.generateProps();
-      }
-      const stateManager = this.context;
+      // const stateManager = this.context;
       return (
-        <WrappedComponent
-          {...this.props}
-          {...this.generatedProps}
-          stateManager={stateManager}
-        />
+        <ProjectContext.Consumer>
+          {stateManager => {
+            this.stateManager = stateManager;
+            if (!this.generatedProps) {
+              this.generateProps();
+            }
+            return (
+              <WrappedComponent
+                {...this.props}
+                {...this.generatedProps}
+                stateManager={stateManager}
+              />
+            );
+          }}
+        </ProjectContext.Consumer>
       );
     }
   }
