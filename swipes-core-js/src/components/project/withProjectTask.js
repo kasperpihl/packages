@@ -66,6 +66,9 @@ export default WrappedComponent => {
       return (
         <ProjectContext.Consumer>
           {stateManager => {
+            if (!stateManager || !stateManager.getClientState) {
+              return null;
+            }
             this.stateManager = stateManager;
             if (!this.generatedProps) {
               this.generateProps();
