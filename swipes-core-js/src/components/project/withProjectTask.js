@@ -12,9 +12,11 @@ export default WrappedComponent => {
       this.unsubscribe = stateManager.subscribe(this.checkRerender);
     }
     componentWillUnmount() {
+      this._unmounted = true;
       this.unsubscribe();
     }
     checkRerender = () => {
+      if (this._unmounted) return;
       const oldProps = this.generatedProps;
       this.generateProps();
       if (oldProps !== this.generatedProps) {
@@ -72,7 +74,6 @@ export default WrappedComponent => {
             if (!this.generatedProps) {
               this.generateProps();
             }
-            console.log('genProps', this.generatedProps);
             return (
               <WrappedComponent
                 {...this.props}
