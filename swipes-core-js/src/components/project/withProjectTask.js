@@ -75,7 +75,7 @@ export default WrappedComponent => {
             return (
               <WrappedComponent
                 {...this.props}
-                {...this.generatedProps}
+                task={this.generatedProps}
                 stateManager={stateManager}
               />
             );
