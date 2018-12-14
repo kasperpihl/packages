@@ -44,7 +44,7 @@ export default class ProjectSyncHandler {
       const sTask = this.currentServerState.getIn(['tasks_by_id', taskId]);
 
       if (sOrder !== cOrder) {
-        server.order[taskId] = cOrder;
+        server.ordering[taskId] = cOrder;
       }
       if (sIndent !== cIndent) {
         server.indention[taskId] = cIndent;
@@ -61,7 +61,7 @@ export default class ProjectSyncHandler {
     this.deletedIds.forEach(id => {
       server.tasks_by_id[id] = null;
       server.indention[id] = null;
-      server.order[id] = null;
+      server.ordering[id] = null;
       server.completion[id] = null;
     });
 
