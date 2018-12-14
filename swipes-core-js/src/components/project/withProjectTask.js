@@ -72,6 +72,7 @@ export default WrappedComponent => {
             if (!this.generatedProps) {
               this.generateProps();
             }
+            console.log('genProps', this.generatedProps);
             return (
               <WrappedComponent
                 {...this.props}
