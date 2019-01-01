@@ -1,5 +1,4 @@
-import projectCompleteTaskWithChildren from 'src/utils/project/projectCompleteTaskWithChildren';
-import projectValidateCompletion from 'src/utils/project/projectValidateCompletion';
+import projectValidateStates from 'src/utils/project/projectValidateStates';
 
 export default class ProjectCompleteHandler {
   constructor(stateManager) {
@@ -11,10 +10,32 @@ export default class ProjectCompleteHandler {
   incomplete = id => {
     this._completeById(id, false);
   };
-  _completeById = (id, complete) => {
+  _completeById = (idToComplete, shouldComplete) => {
     let clientState = this.stateManager.getClientState();
-    clientState = projectCompleteTaskWithChildren(clientState, id, complete);
-    clientState = projectValidateCompletion(clientState);
+    let localState = this.stateManager.getLocalState();
+
+    const indexToComplete = clientState.getIn(['ordering', idToComplete]);
+    const orgIndent = clientState.getIn(['indention', idToComplete]);
+
+    let deltaIndex = indexToComplete;
+    let deltaIndent = orgIndent;
+    do {
+      // Set all children and grandchildren
+      let deltaId = clientState.getIn(['sortedOrder', deltaIndex]);
+      clientState = clientState.setIn(
+        ['completion', deltaId],
+        !!shouldComplete
+      );
+      deltaIndex++;
+      deltaId = clientState.getIn(['sortedOrder', deltaIndex]);
+      deltaIndent = clientState.getIn(['indention', deltaId]);
+    } while (
+      deltaIndent > orgIndent &&
+      deltaIndex < clientState.get('sortedOrder').size
+    );
+
+    [clientState, localState] = projectValidateStates(clientState, localState);
+
     this.stateManager._update({ clientState });
   };
 }

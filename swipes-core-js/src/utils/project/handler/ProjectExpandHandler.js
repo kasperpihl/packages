@@ -1,11 +1,11 @@
-import projectGenerateVisibleOrder from 'src/utils/project/projectGenerateVisibleOrder';
+import projectValidateStates from 'src/utils/project/projectValidateStates';
 
 export default class ProjectExpandHandler {
   constructor(stateManager) {
     this.stateManager = stateManager;
   }
   setDepth = depth => {
-    const clientState = this.stateManager.getClientState();
+    let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
 
     clientState.get('sortedOrder').forEach(taskId => {
@@ -15,10 +15,8 @@ export default class ProjectExpandHandler {
         localState = localState.setIn(['expanded', taskId], shouldBeExpanded);
       }
     });
-    localState = projectGenerateVisibleOrder(clientState, localState);
-    this.stateManager._update({
-      localState
-    });
+    [clientState, localState] = projectValidateStates(clientState, localState);
+    this.stateManager._update({ localState });
   };
   expand = id => {
     this._expandById(id, true);
@@ -27,12 +25,12 @@ export default class ProjectExpandHandler {
     this._expandById(id, false);
   };
   _expandById = (id, expand) => {
-    const clientState = this.stateManager.getClientState();
+    let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
 
     if (!localState.getIn(['hasChildren', id])) return;
     localState = localState.setIn(['expanded', id], expand);
-    localState = projectGenerateVisibleOrder(clientState, localState);
+    [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState });
   };
 }

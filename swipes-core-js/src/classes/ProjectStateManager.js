@@ -6,9 +6,9 @@ import ProjectSelectHandler from 'src/utils/project/handler/ProjectSelectHandler
 import ProjectSyncHandler from 'src/utils/project/handler/ProjectSyncHandler';
 import ProjectUndoHandler from 'src/utils/project/handler/ProjectUndoHandler';
 
-import projectGenerateLocalState from 'src/utils/project/projectGenerateLocalState';
+import { fromJS } from 'immutable';
 import randomString from 'src/utils/randomString';
-import projectUpdateSortedOrderFromOrder from 'src/utils/project/projectUpdateSortedOrderFromOrder';
+import projectValidateStates from 'src/utils/project/projectValidateStates';
 
 /*
 The responsibility of State Manager is to handle 
@@ -16,9 +16,29 @@ the full state for a ProjectOverview, it achieves this with help from
 */
 export default class ProjectStateManager {
   constructor(serverState) {
-    this._clientState = projectUpdateSortedOrderFromOrder(serverState);
-    this._localState = projectGenerateLocalState(this._clientState);
+    let clientState = serverState.set(
+      'sortedOrder',
+      serverState
+        .get('ordering')
+        .sort((a, b) => {
+          if (a < b) return -1;
+          if (a > b) return 1;
+          return 0;
+        })
+        .keySeq()
+        .toList()
+    );
+    let localState = fromJS({
+      hasChildren: {},
+      selectedId: null,
+      sliderValue: 0,
+      expanded: {},
+      visibleOrder: []
+    });
+    [clientState, localState] = projectValidateStates(clientState, localState);
 
+    this._clientState = clientState;
+    this._localState = localState;
     this._subscriptions = {};
     this._destroyHandlers = [];
 

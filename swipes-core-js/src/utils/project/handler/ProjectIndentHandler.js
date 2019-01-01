@@ -1,7 +1,5 @@
 import projectIndentTaskAndChildren from 'src/utils/project/projectIndentTaskAndChildren';
-import projectUpdateHasChildrenForTask from 'src/utils/project/projectUpdateHasChildrenForTask';
-import projectForceParentExpandedForTask from 'src/utils/project/projectForceParentExpandedForTask';
-import projectValidateCompletion from 'src/utils/project/projectValidateCompletion';
+import projectValidateStates from 'src/utils/project/projectValidateStates';
 
 export default class ProjectIndentHandler {
   constructor(stateManager) {
@@ -18,9 +16,26 @@ export default class ProjectIndentHandler {
     let localState = this.stateManager.getLocalState();
 
     clientState = projectIndentTaskAndChildren(clientState, id, modifier);
-    localState = projectUpdateHasChildrenForTask(clientState, localState, id);
-    localState = projectForceParentExpandedForTask(clientState, localState, id);
-    clientState = projectValidateCompletion(clientState);
+
+    // Ensure parent gets expanded
+    const visibleIndex = localState
+      .get('visibleOrder')
+      .findIndex(taskId => taskId === id);
+    if (visibleIndex > 0) {
+      const prevVisibleId = localState.getIn([
+        'visibleOrder',
+        visibleIndex - 1
+      ]);
+      if (
+        clientState.getIn(['indention', id]) >
+          clientState.getIn(['indention', prevVisibleId]) &&
+        modifier > 0
+      ) {
+        localState = localState.setIn(['expanded', prevVisibleId], true);
+      }
+    }
+
+    [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({
       clientState,
       localState

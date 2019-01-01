@@ -32,17 +32,12 @@ export default class ProjectSelectHandler {
     }
   };
   _selectValue = value => {
-    let localState = this.stateManager.getLocalState();
-    // const clientState = this.stateManager.getClientState();
-    // console.log(
-    //   value
-    //     ? `selecting ${clientState.getIn(['tasks_by_id', value, 'title'])}`
-    //     : 'deselecting',
-    //   localState.get('selectedId')
-    // );
+    const localState = this.stateManager.getLocalState();
     if (localState.get('selectedId') !== value) {
-      localState = localState.set('selectedId', value);
-      this.stateManager._update({ localState }, false);
+      this.stateManager._update(
+        { localState: localState.set('selectedId', value) },
+        false
+      );
     }
   };
 }

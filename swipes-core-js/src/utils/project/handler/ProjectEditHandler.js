@@ -1,10 +1,6 @@
 import randomString from 'src/utils/randomString';
-import projectIndentTaskAndChildren from 'src/utils/project/projectIndentTaskAndChildren';
-import projectUpdateHasChildrenForTask from 'src/utils/project/projectUpdateHasChildrenForTask';
 import { fromJS } from 'immutable';
-import projectGenerateVisibleOrder from 'src/utils/project/projectGenerateVisibleOrder';
-import projectUpdateOrderFromSortedOrder from 'src/utils/project/projectUpdateOrderFromSortedOrder';
-import projectValidateCompletion from 'src/utils/project/projectValidateCompletion';
+import projectValidateStates from 'src/utils/project/projectValidateStates';
 
 export default class ProjectEditHandler {
   constructor(stateManager) {
@@ -65,15 +61,7 @@ export default class ProjectEditHandler {
       );
     }
 
-    clientState = projectIndentTaskAndChildren(clientState, prevId);
-    localState = projectUpdateHasChildrenForTask(
-      clientState,
-      localState,
-      prevId
-    );
-    clientState = projectValidateCompletion(clientState);
-
-    localState = projectGenerateVisibleOrder(clientState, localState);
+    [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState, clientState });
   };
   enter = (id, selectionStart = null) => {
@@ -120,15 +108,7 @@ export default class ProjectEditHandler {
       clientState.get('sortedOrder').insert(nextIndex, newId)
     );
 
-    clientState = projectUpdateOrderFromSortedOrder(clientState);
-    localState = projectUpdateHasChildrenForTask(
-      clientState,
-      localState,
-      newId
-    );
-
-    clientState = projectValidateCompletion(clientState);
-    localState = projectGenerateVisibleOrder(clientState, localState);
+    [clientState, localState] = projectValidateStates(clientState, localState);
 
     this.stateManager._update({ clientState, localState });
   };
