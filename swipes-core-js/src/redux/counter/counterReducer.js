@@ -2,7 +2,7 @@ import { fromJS } from 'immutable';
 
 const initialState = fromJS({
   notification: [],
-  discussion: [],
+  discussion: []
 });
 
 export default function counterReducer(state = initialState, action) {
@@ -39,12 +39,14 @@ export default function counterReducer(state = initialState, action) {
           (!subscription.read_at || subscription.read_at < data.last_comment_at)
         ) {
           state = state.updateIn(['discussion'], d =>
-            d.filter(o => o.get('id') !== data.id).push(
-              fromJS({
-                ts: data.last_comment_at,
-                id: data.id,
-              })
-            )
+            d
+              .filter(o => o.get('id') !== data.id)
+              .push(
+                fromJS({
+                  ts: data.last_comment_at,
+                  id: data.id
+                })
+              )
           );
         }
       });

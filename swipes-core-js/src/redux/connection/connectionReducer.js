@@ -6,14 +6,14 @@ const initialState = fromJS({
   lastVersion: null,
   notificationCounter: 0,
   status: 'offline',
-  versionInfo: {},
+  versionInfo: {}
 });
 
 export default function connectionReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
-    case 'init': {
+    case 'me.init': {
       return state.set('lastConnect', payload.timestamp);
     }
     case types.SET_LAST_VERSION: {

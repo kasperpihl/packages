@@ -7,7 +7,7 @@ export default function meReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
-    case 'init': {
+    case 'me.init': {
       return fromJS(payload.me);
     }
     case types.RESET_STATE: {

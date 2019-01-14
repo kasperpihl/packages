@@ -1,11 +1,14 @@
 import { fromJS, Map } from 'immutable';
 import * as types from '../constants';
 
-const initialState = fromJS({ server: {}});
+const initialState = fromJS({ server: {} });
 
 const handleNoteUpdate = (state, note) => {
   const id = note.get('id');
-  if (!state.getIn(['server', id]) || state.getIn(['server', id, 'rev']) < note.get('rev')) {
+  if (
+    !state.getIn(['server', id]) ||
+    state.getIn(['server', id, 'rev']) < note.get('rev')
+  ) {
     state = state.setIn(['server', id], note);
   }
 
@@ -24,22 +27,19 @@ const handleNoteUpdate = (state, note) => {
 };
 
 export default function notesReducer(state = initialState, action) {
-  const {
-    type,
-    payload,
-  } = action;
+  const { type, payload } = action;
 
   switch (type) {
     case 'init': {
       let server = Map();
-      if(!payload.full_fetch) {
+      if (!payload.full_fetch) {
         server = state.get('server');
       }
 
-      if(payload.notes) {
-        payload.notes.forEach((note) => {
+      if (payload.notes) {
+        payload.notes.forEach(note => {
           server = server.set(note.id, fromJS(note));
-          if(note.archived || note.deleted) {
+          if (note.archived || note.deleted) {
             server = server.delete(note.id);
           }
         });
@@ -49,12 +49,18 @@ export default function notesReducer(state = initialState, action) {
     }
     case types.NOTE_CACHE: {
       if (payload.serverOrg) {
-        state = state.setIn(['cache', payload.id, 'serverOrg'], payload.serverOrg);
+        state = state.setIn(
+          ['cache', payload.id, 'serverOrg'],
+          payload.serverOrg
+        );
       }
       return state.setIn(['cache', payload.id, 'text'], fromJS(payload.text));
     }
     case types.NOTE_SAVE_START: {
-      state = state.setIn(['cache', payload.id, '_savingText'], fromJS(payload.text));
+      state = state.setIn(
+        ['cache', payload.id, '_savingText'],
+        fromJS(payload.text)
+      );
       state = state.setIn(['cache', payload.id, '_saveId'], payload.saveId);
       return state.deleteIn(['cache', payload.id, 'text']);
     }
