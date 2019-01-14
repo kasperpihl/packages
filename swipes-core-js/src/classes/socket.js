@@ -112,8 +112,8 @@ export default class Socket {
   fetchInit() {
     const { connection } = this.store.getState();
 
-    request('init', {
-      timestamp: connection.get('lastConnect') || null,
+    request('me.init', {
+      timestamp: connection.get('lastConnect') || null
     }).then(res => {
       this.isConnecting = false;
       this.isConnected = true;
@@ -137,8 +137,8 @@ export default class Socket {
       payload: {
         status,
         reconnectAttempt: this.reconnect_attempts,
-        nextRetry,
-      },
+        nextRetry
+      }
     });
   };
   message = message => {
@@ -172,7 +172,7 @@ export default class Socket {
     ) {
       this.store.dispatch({
         type: types.NOTIFICATION_ADD,
-        payload: payload.notification_data,
+        payload: payload.notification_data
       });
     }
   }
