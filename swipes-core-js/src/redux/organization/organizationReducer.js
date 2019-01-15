@@ -10,12 +10,12 @@ export default function meReducer(state = initialState, action) {
     case 'me.init': {
       let newState = initialState;
       payload.organizations.forEach(org => {
-        newState = newState.set(org.organization_id, org);
+        newState = newState.set(org.organization_id, fromJS(org));
       });
       payload.users.forEach(user => {
         newState = newState.setIn(
           [user.organization_id, 'users', user.user_id],
-          user
+          fromJS(user)
         );
       });
       return newState;

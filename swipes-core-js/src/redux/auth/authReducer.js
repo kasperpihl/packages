@@ -2,7 +2,7 @@ import { fromJS } from 'immutable';
 import * as types from '../constants';
 
 const initialState = fromJS({
-  token: null,
+  token: null
 });
 
 export default function globals(state = initialState, action) {
@@ -12,6 +12,7 @@ export default function globals(state = initialState, action) {
     case 'user.signup': {
       return state.set('token', payload.token);
     }
+    case 'user.signout':
     case types.RESET_STATE: {
       return initialState;
     }

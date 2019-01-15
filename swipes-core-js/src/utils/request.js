@@ -15,14 +15,8 @@ export default (options, data) => {
 
   options = options || {};
 
-  const { auth, connection, me, global } = store.getState();
-  let body = Object.assign(
-    {
-      token: auth.get('token'),
-      organization_id: me.getIn(['organizations', 0, 'id']) || null,
-    },
-    data
-  );
+  const { auth, connection, global } = store.getState();
+
   const updateRequired = connection.getIn(['versionInfo', 'updateRequired']);
   const reloadRequired = connection.getIn(['versionInfo', 'reloadRequired']);
   if (updateRequired || reloadRequired) {
@@ -36,22 +30,23 @@ export default (options, data) => {
   const extraHeaders = (apiHeaders && apiHeaders.toJS()) || {};
 
   const headers = new Headers({
+    Authorization: `Bearer ${auth.get('token')}`
     ...extraHeaders,
   });
 
+  let body;
   if (!options.formData) {
-    body = JSON.stringify(body);
+    body = JSON.stringify(data);
     headers.append('Content-Type', 'application/json');
   } else {
-    const values = Object.entries(body);
     body = new FormData();
-    values.forEach(([k, v]) => {
+    Object.entries(data).forEach(([k, v]) => {
       body.append(k, v);
     });
   }
 
   const serData = {
-    method: 'POST',
+    method: options.method || 'POST',
     headers,
     body,
   };
