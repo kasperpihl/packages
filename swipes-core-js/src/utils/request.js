@@ -23,15 +23,15 @@ export default (options, data) => {
     return Promise.resolve({
       ok: false,
       update_required: updateRequired,
-      reload_required: reloadRequired,
+      reload_required: reloadRequired
     });
   }
   const apiHeaders = global.get('apiHeaders');
   const extraHeaders = (apiHeaders && apiHeaders.toJS()) || {};
 
   const headers = new Headers({
-    Authorization: `Bearer ${auth.get('token')}`
-    ...extraHeaders,
+    Authorization: `Bearer ${auth.get('token')}`,
+    ...extraHeaders
   });
 
   let body;
@@ -48,7 +48,7 @@ export default (options, data) => {
   const serData = {
     method: options.method || 'POST',
     headers,
-    body,
+    body
   };
   let redirectUrl;
   return new Promise((resolve, reject) => {
@@ -76,12 +76,12 @@ export default (options, data) => {
           if (res.updates) {
             store.dispatch({
               type: 'update',
-              payload: { updates: res.updates },
+              payload: { updates: res.updates }
             });
           }
           store.dispatch({
             type: command,
-            payload: res,
+            payload: res
           });
         } else {
           if (res.error === 'not_authed') {
