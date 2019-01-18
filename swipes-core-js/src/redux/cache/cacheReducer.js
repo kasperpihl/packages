@@ -1,5 +1,5 @@
-import { fromJS } from "immutable";
-import * as types from "../constants";
+import { fromJS } from 'immutable';
+import * as types from '../constants';
 
 const initialState = fromJS({});
 
@@ -20,19 +20,19 @@ export default function cacheReducer(state = initialState, action) {
     case types.CACHE_CLEAR: {
       return state.deleteIn(payload.path);
     }
-    case "update": {
+    case 'update': {
       payload.updates.forEach(({ type, data }) => {
-        const path = data.id.split("-");
-        path[path.length - 1] = data.id;
-        const currentVal = state.getIn([type, ...path]);
-        // Ensure latest value wins!
-        if (!currentVal || currentVal.get("updated_at") < data.updated_at) {
-          if (data.archived) {
-            state = state.deleteIn([type, ...path]);
-          } else {
-            state = state.setIn([type, ...path], fromJS(data));
-          }
-        }
+        // const path = data.id.split("-");
+        // path[path.length - 1] = data.id;
+        // const currentVal = state.getIn([type, ...path]);
+        // // Ensure latest value wins!
+        // if (!currentVal || currentVal.get("updated_at") < data.updated_at) {
+        //   if (data.archived) {
+        //     state = state.deleteIn([type, ...path]);
+        //   } else {
+        //     state = state.setIn([type, ...path], fromJS(data));
+        //   }
+        // }
       });
       return state;
     }
