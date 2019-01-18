@@ -16,7 +16,6 @@ export default (options, data) => {
   options = options || {};
 
   const { auth, connection, global } = store.getState();
-
   const updateRequired = connection.getIn(['versionInfo', 'updateRequired']);
   const reloadRequired = connection.getIn(['versionInfo', 'reloadRequired']);
   if (updateRequired || reloadRequired) {
