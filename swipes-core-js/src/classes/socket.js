@@ -18,10 +18,11 @@ export default class Socket {
   }
   storeChange = () => {
     const { connection, auth } = this.store.getState();
-    if (!auth.get('token') && this.token) {
+    const shouldReset = !!(!auth.get('token') && this.token);
+    this.token = auth.get('token');
+    if (shouldReset) {
       this.store.dispatch({ type: types.RESET_STATE });
     }
-    this.token = auth.get('token');
 
     const forceFullFetch = connection.get('forceFullFetch');
 
