@@ -18,6 +18,9 @@ export default class Socket {
   }
   storeChange = () => {
     const { connection, auth } = this.store.getState();
+    if (!auth.get('token') && this.token) {
+      this.store.dispatch({ type: types.RESET_STATE });
+    }
     this.token = auth.get('token');
 
     const forceFullFetch = connection.get('forceFullFetch');
@@ -149,12 +152,6 @@ export default class Socket {
       return;
     }
 
-    if (type === 'token_revoked') {
-      const currToken = this.store.getState().auth.get('token');
-      if (payload.token_to_revoke === currToken) {
-        return this.store.dispatch({ type: types.RESET_STATE });
-      }
-    }
     if (type === 'update' && window && window.ipcListener) {
       window.ipcListener.handleDesktopNotifications(payload.data);
     }
