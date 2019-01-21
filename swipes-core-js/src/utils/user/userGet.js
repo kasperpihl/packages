@@ -1,8 +1,16 @@
 import storeGet from '../store/storeGet';
 
-export default user => {
+export default (user, organizationId) => {
   if (typeof user === 'string') {
-    return storeGet().getState().me;
+    const me = storeGet().getState().me;
+    // Support Personal stuff
+    if (user === 'me' || organizationId === me.get('user_id')) {
+      return me;
+    }
+
+    return storeGet()
+      .getState()
+      .organization.getIn([organizationId, 'users', user]);
   }
   return user;
 };

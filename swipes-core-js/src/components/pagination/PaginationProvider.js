@@ -8,15 +8,15 @@ import createCacheSelector from '../../utils/createCacheSelector';
 import PaginationResults from './PaginationResults';
 const DEFAULT_LIMIT = 20;
 
-import * as cacheActions from '../actions/cache';
+import * as cacheActions from '../../redux/cache/cacheActions';
 
 @connect(
   state => ({
-    isOnline: state.connection.get('status') === 'online',
+    isOnline: state.connection.get('status') === 'online'
   }),
   {
     cacheSaveBatch: cacheActions.saveBatch,
-    cacheGetSelector: cacheActions.getSelector,
+    cacheGetSelector: cacheActions.getSelector
   }
 )
 export default class PaginationProvider extends PureComponent {
@@ -27,7 +27,7 @@ export default class PaginationProvider extends PureComponent {
       loadMore: this.loadMore,
       loading: false,
       error: false,
-      hasMore: false,
+      hasMore: false
     };
     this.forceSkip = true;
     this.hasLoaded = false;
@@ -59,7 +59,7 @@ export default class PaginationProvider extends PureComponent {
       this.setState(
         {
           hasMore: false,
-          loading: false,
+          loading: false
         },
         this.fetchResults
       );
@@ -81,7 +81,7 @@ export default class PaginationProvider extends PureComponent {
       request,
       cache,
       cacheSaveBatch,
-      cacheGetSelector,
+      cacheGetSelector
     } = this.props;
     const { loading } = this.state;
 
@@ -94,7 +94,7 @@ export default class PaginationProvider extends PureComponent {
     apiRequest(request.url, {
       skip: !this.forceSkip && currentCache ? currentCache.size : 0,
       limit,
-      ...request.body,
+      ...request.body
     }).then(res => {
       if (this.fetchId !== fetchId || this._unmounted) return;
       if (res && res.ok) {
@@ -106,7 +106,7 @@ export default class PaginationProvider extends PureComponent {
         const newResults = getDeep(res, request.resPath || 'results');
         let path = cache.path;
         if (!Array.isArray(path)) path = [path];
-        cacheSaveBatch(path, newResults);
+        cacheSaveBatch(path, newResults, cache.idAttribute);
         if (newResults.length) {
           let orderKey = cache.orderBy;
           if (orderKey.startsWith('-')) orderKey = orderKey.slice(1);
@@ -120,7 +120,7 @@ export default class PaginationProvider extends PureComponent {
             typeof res.has_more !== 'undefined'
               ? res.has_more
               : newResults.length === limit,
-          loading: false,
+          loading: false
         });
       } else this.setState({ loading: false, error: true });
     });

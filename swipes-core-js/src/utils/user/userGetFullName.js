@@ -2,8 +2,8 @@ import userGet from './userGet';
 import userGetFirstName from './userGetFirstName';
 import userGetLastName from './userGetLastName';
 
-export default userId => {
-  const user = userGet(userId);
+export default (userId, organizationId) => {
+  const user = userGet(userId, organizationId);
   if (!user) {
     return undefined;
   }

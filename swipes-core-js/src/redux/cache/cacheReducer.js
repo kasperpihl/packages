@@ -13,7 +13,11 @@ export default function cacheReducer(state = initialState, action) {
     }
     case types.CACHE_SAVE_BATCH: {
       payload.data.forEach(d => {
-        state = state.setIn([...payload.path, d.id], fromJS(d));
+        console.log(d);
+        state = state.setIn(
+          [...payload.path, d[payload.idAttribute]],
+          fromJS(d)
+        );
       });
       return state;
     }

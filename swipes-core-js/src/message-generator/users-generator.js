@@ -41,7 +41,10 @@ export default class Users {
       return undefined;
     }
     const firstName = user.getIn(['profile', 'first_name']) || '';
-    return firstName.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+    return firstName
+      .split(' ')
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(' ');
   }
   getLastName(userId) {
     const user = this.getUser(userId);
@@ -49,7 +52,10 @@ export default class Users {
       return undefined;
     }
     const lastName = user.getIn(['profile', 'last_name']) || '';
-    return lastName.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+    return lastName
+      .split(' ')
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join(' ');
   }
   getRole(userId) {
     const user = this.getUser(userId);
@@ -131,11 +137,9 @@ export default class Users {
       number = 1,
       quotes = false,
       bold = false,
-      defaultString = null,
+      defaultString = null
     } = options;
-    let {
-      excludeId = null,
-    } = options;
+    let { excludeId = null } = options;
 
     if (!userIds || !userIds.size) {
       return defaultString || 'no one';
@@ -163,16 +167,16 @@ export default class Users {
       const name = names.get(i);
       if (i < numberOfNames && name) {
         let seperator = i > 0 ? ', ' : '';
-        if (i === (names.size - 1) && i > 0) {
+        if (i === names.size - 1 && i > 0) {
           seperator = ' & ';
         }
-        nameString += (seperator + name);
+        nameString += seperator + name;
       }
       i += 1;
     } while (i < numberOfNames && i < names.size);
 
     if (names.size && i < names.size) {
-      const extra = (names.size - i);
+      const extra = names.size - i;
       nameString += ` & ${extra} other${extra > 1 ? 's' : ''}`;
     }
 
