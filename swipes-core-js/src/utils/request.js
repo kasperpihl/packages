@@ -97,7 +97,7 @@ export default (options, data) => {
           console.warn(command, e);
         }
 
-        if (typeof e.ok === 'boolean') {
+        if (e.ok && typeof e.ok === 'boolean') {
           return resolve(e);
         }
 
