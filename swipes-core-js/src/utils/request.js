@@ -96,7 +96,12 @@ export default (options, data) => {
         if (store.getState().global.get('isDev')) {
           console.warn(command, e);
         }
-        resolve(e);
+
+        if (typeof e.ok === 'boolean') {
+          return resolve(e);
+        }
+
+        resolve({ ok: false, error: 'Connection error' });
       });
   });
 };
