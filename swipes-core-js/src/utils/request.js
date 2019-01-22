@@ -86,7 +86,7 @@ export default (options, data) => {
           if (res.error === 'not_authed') {
             store.dispatch({ type: types.RESET_STATE });
           }
-          return Promise.reject({ message: res.error });
+          return Promise.reject(res);
         }
 
         // Let's return a promise for convenience.
@@ -96,7 +96,7 @@ export default (options, data) => {
         if (store.getState().global.get('isDev')) {
           console.warn(command, e);
         }
-        resolve({ ok: false, error: e.message || 'unknown error' });
+        resolve(e);
       });
   });
 };
