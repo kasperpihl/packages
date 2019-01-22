@@ -9,7 +9,7 @@
     "build": "babel src -d dist",
     "start": "BABEL_ENV=es babel src -d dist --watch",
     "prepublishOnly": "npm run build",
-    "postpublish": "git add package.json; git add package-lock.json; git commit -m \"bumped version number\""
+    "postpublish": "git add package.json; git add package-lock.json; git commit -m \"bumped version number\"; git push"
   },
   "author": "Swipes Team",
   "devDependencies": {
