@@ -13,22 +13,22 @@
   },
   "author": "Swipes Team",
   "devDependencies": {
-    "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-decorators": "^7.1.2",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.3.0",
+    "@babel/plugin-proposal-decorators": "^7.3.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.3.1",
+    "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
-    "babel-plugin-module-resolver": "^3.1.1",
-    "react": "^16.6.3",
-    "rimraf": "^2.6.2"
+    "babel-plugin-module-resolver": "^3.1.3",
+    "react": "^16.7.0",
+    "rimraf": "^2.6.3"
   },
   "dependencies": {
-    "hoist-non-react-statics": "^3.1.0",
+    "hoist-non-react-statics": "^3.3.0",
     "immutable": "^4.0.0-rc.12",
-    "memoize-one": "^4.1.0",
-    "react-redux": "^5.1.0",
+    "memoize-one": "^5.0.0",
+    "react-redux": "^6.0.0",
     "reselect": "^4.0.0",
     "valjs": "0.0.28"
   }
