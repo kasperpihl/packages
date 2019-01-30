@@ -7,6 +7,6 @@ export default function orgGetBelonging(ownedBy) {
   return (
     storeGet()
       .getState()
-      .organization.getIn([ownedBy, 'name']) || 'Unknown'
+      .organizations.getIn([ownedBy, 'name']) || 'Unknown'
   );
 }

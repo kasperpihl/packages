@@ -10,7 +10,7 @@ export default (user, organizationId) => {
 
     return storeGet()
       .getState()
-      .organization.getIn([organizationId, 'users', user]);
+      .organizations.getIn([organizationId, 'users', user]);
   }
   return user;
 };
