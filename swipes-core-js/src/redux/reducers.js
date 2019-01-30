@@ -4,4 +4,4 @@ export { default as connection } from './connection/connectionReducer';
 export { default as counter } from './counter/counterReducer';
 export { default as global } from './global/globalReducer';
 export { default as me } from './me/meReducer';
-export { default as organization } from './organization/organizationReducer';
+export { default as organizations } from './organizations/organizationReducers';

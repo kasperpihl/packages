@@ -3,7 +3,7 @@ import * as types from '../constants';
 
 const initialState = fromJS({});
 
-export default function meReducer(state = initialState, action) {
+export default function organizationsReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
