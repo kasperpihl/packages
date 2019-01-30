@@ -70,7 +70,7 @@ export default class ProjectSyncHandler {
     );
 
     if (Object.keys(server).length) {
-      server.project_id = 'A123131';
+      server.project_id = this.currentServerState.get('project_id');
       server.rev = this.currentServerState.get('rev');
       server.update_identifier = randomString(6);
       this.myUpdates[server.update_identifier] = true;
