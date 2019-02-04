@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { fromJS } from 'immutable';
+import { createSelector } from 'reselect';
 import { connect } from 'react-redux';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import apiRequest from '../utils/request';
@@ -17,17 +18,25 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
       return statePath;
     }
   };
+  const getCacheFromPath = path => state => state.cache.getIn(path);
+  const generateSelector = path =>
+    createSelector(
+      [getCacheFromPath(path)],
+      cache => cache
+    );
+
   @connect(
     (state, props) => {
       const res = {
         isOnline: state.connection.get('status') === 'online',
-        ready: true,
+        ready: true
       };
 
       for (let propName in mapping) {
         const cachePath = getCachePath(mapping[propName].cache, props);
         if (cachePath) {
-          res[propName] = state.cache.getIn(cachePath);
+          const selector = generateSelector(cachePath);
+          res[propName] = selector(state, props);
           if (typeof res[propName] === 'undefined') {
             res.ready = false;
           }
@@ -36,7 +45,7 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
       return res;
     },
     {
-      cacheSave: cacheActions.save,
+      cacheSave: cacheActions.save
     }
   )
   class withRequests extends PureComponent {
@@ -44,7 +53,7 @@ export default (mapping = {}, options = {}) => WrappedComponent => {
       super(props);
       this.state = {
         error: false,
-        ready: props.ready,
+        ready: props.ready
       };
       this.needFetch = props.isOnline;
     }
