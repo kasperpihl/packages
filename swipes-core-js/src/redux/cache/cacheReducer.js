@@ -25,17 +25,23 @@ export default function cacheReducer(state = initialState, action) {
     }
     case 'update': {
       payload.updates.forEach(({ type, data }) => {
-        // const path = data.id.split("-");
-        // path[path.length - 1] = data.id;
-        // const currentVal = state.getIn([type, ...path]);
-        // // Ensure latest value wins!
-        // if (!currentVal || currentVal.get("updated_at") < data.updated_at) {
-        //   if (data.archived) {
-        //     state = state.deleteIn([type, ...path]);
-        //   } else {
-        //     state = state.setIn([type, ...path], fromJS(data));
-        //   }
-        // }
+        if (type === 'discussion') {
+          if (data.deleted) {
+            state = state.deleteIn(['discussion', data.discussion_id]);
+            state = state.deleteIn(['comment', data.discussion_id]);
+          } else {
+            state = state.mergeIn(
+              ['discussion', data.discussion_id],
+              fromJS(data)
+            );
+          }
+        }
+        if (type === 'comment') {
+          state = state.mergeIn(
+            ['comment', data.discussion_id, data.comment_id],
+            fromJS(data)
+          );
+        }
       });
       return state;
     }

@@ -146,16 +146,16 @@ export default class Socket {
   message = message => {
     const data = JSON.parse(message.data);
     const { type, payload } = data;
+    console.log(type, payload);
 
     if (!type || !this.isConnected) {
       return;
     }
 
     if (type === 'update' && window && window.ipcListener) {
-      window.ipcListener.handleDesktopNotifications(payload.data);
+      window.ipcListener.handleDesktopNotifications(payload);
     }
-    const socketData = Object.assign({ ok: true }, payload && payload.data);
-    this.store.dispatch({ type, payload: socketData });
+    this.store.dispatch({ type, payload });
 
     this.handleNotifications(payload);
   };
