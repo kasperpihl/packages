@@ -146,7 +146,6 @@ export default class Socket {
   message = message => {
     const data = JSON.parse(message.data);
     const { type, payload } = data;
-    console.log(type, payload);
 
     if (!type || !this.isConnected) {
       return;
