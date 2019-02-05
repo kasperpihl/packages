@@ -73,13 +73,10 @@ export default class Socket {
     const { getState } = this.store;
     let url = getState().global.get('apiUrl');
 
-    if (!url) {
-      console.warn('Socket requires globals reducer to have apiUrl to be set');
-      return;
-    }
-
     if (url.includes('localhost')) {
       url = 'ws://localhost:7000';
+    } else {
+      url = 'wss://socket.wspc.io';
     }
 
     this.openSocket(url);
