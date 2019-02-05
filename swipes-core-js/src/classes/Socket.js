@@ -152,22 +152,8 @@ export default class Socket {
       window.ipcListener.handleDesktopNotifications(payload);
     }
     this.store.dispatch({ type, payload });
-
-    this.handleNotifications(payload);
   };
 
-  handleNotifications(payload) {
-    if (
-      payload &&
-      payload.notification_data &&
-      Object.keys(payload.notification_data).length
-    ) {
-      this.store.dispatch({
-        type: types.NOTIFICATION_ADD,
-        payload: payload.notification_data
-      });
-    }
-  }
   timerForAttempt() {
     const maintenance = this.store
       .getState()
