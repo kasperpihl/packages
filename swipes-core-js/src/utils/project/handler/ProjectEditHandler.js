@@ -85,6 +85,7 @@ export default class ProjectEditHandler {
       fromJS({
         task_id: newId,
         title: nextTitle,
+        assignees: [],
         due_date: null
       })
     );
