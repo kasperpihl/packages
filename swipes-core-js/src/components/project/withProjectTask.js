@@ -29,6 +29,12 @@ export default WrappedComponent => {
       const clientState = stateManager.getClientState();
       const localState = stateManager.getLocalState();
 
+      if (typeof clientState.getIn(['ordering', taskId]) !== 'number') {
+        this.generatedProps = undefined;
+        // Task is deleted, don't render!
+        return;
+      }
+
       const selectedId = localState.get('selectedId');
       const selectionStart = localState.get('selectionStart');
       this.memoizeGenerateProps(
@@ -77,6 +83,8 @@ export default WrappedComponent => {
             if (!this.generatedProps) {
               this.generateProps();
             }
+            // Make sure deleted tasks does not get rendered
+            if (!this.generatedProps) return null;
             return (
               <WrappedComponent
                 {...this.props}
