@@ -111,8 +111,6 @@ export default class Socket {
     };
   }
   fetchInit() {
-    const { connection } = this.store.getState();
-
     request('me.init').then(res => {
       this.isConnecting = false;
       this.isConnected = true;

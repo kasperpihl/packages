@@ -1,6 +1,6 @@
 import { fromJS } from 'immutable';
 
-export default (
+export default function projectValidateStates(
   clientState,
   localState,
   options = {
@@ -9,7 +9,7 @@ export default (
     completion: true,
     hasChildren: true
   }
-) => {
+) {
   // Verify completion
   const order = clientState.get('sortedOrder');
   const allCompletedForLevel = {};
@@ -74,12 +74,14 @@ export default (
   };
 
   let prevIndention = 0;
+  let maxIndention = 0;
   const checkIndentionForTask = taskId => {
     let indention = clientState.getIn(['indention', taskId]);
     if (indention > prevIndention + 1) {
       indention = prevIndention + 1;
       clientState = clientState.setIn(['indention', taskId], indention);
     }
+    maxIndention = Math.max(maxIndention, indention);
     prevIndention = indention;
   };
 
@@ -120,6 +122,11 @@ export default (
     generateVisibleOrder(taskId);
   }
 
+  // Update max indention if needed
+  if (localState.get('maxIndention') !== maxIndention) {
+    localState = localState.set('maxIndention', maxIndention);
+  }
+
   // Update visible order if needed
   if (localState.get('visibleOrder').size !== newVisibleOrder.size) {
     localState = localState.set('visibleOrder', newVisibleOrder);
@@ -134,4 +141,4 @@ export default (
   }
 
   return [clientState, localState];
-};
+}
