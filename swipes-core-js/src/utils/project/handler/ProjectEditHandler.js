@@ -94,15 +94,31 @@ export default class ProjectEditHandler {
     localState = localState.set('selectedId', newId);
     localState = localState.set('selectionStart', 0);
 
-    const nextIndex = clientState.getIn(['ordering', id]) + 1;
-    const nextId = clientState.getIn(['sortedOrder', nextIndex]);
     const currentIndention = clientState.getIn(['indention', id]);
-    const nextIndention = clientState.getIn(['indention', nextId]) || 0;
+    const currentHasChildren = localState.getIn(['hasChildren', id]);
+    const currentIsExpanded = localState.getIn(['expanded', id]);
 
-    clientState = clientState.setIn(
-      ['indention', newId],
-      Math.max(currentIndention, nextIndention)
-    );
+    let nextIndex = clientState.getIn(['ordering', id]) + 1;
+    let nextIndention = currentIndention;
+    if (currentHasChildren) {
+      if (currentIsExpanded) {
+        nextIndention++;
+      } else {
+        do {
+          nextIndex++;
+          nextIndention =
+            clientState.getIn([
+              'indention',
+              clientState.getIn(['sortedOrder', nextIndex])
+            ]) || 0;
+        } while (
+          nextIndention > currentIndention &&
+          nextIndex < clientState.get('sortedOrder').size
+        );
+      }
+    }
+
+    clientState = clientState.setIn(['indention', newId], nextIndention);
 
     clientState = clientState.set(
       'sortedOrder',
