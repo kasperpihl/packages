@@ -86,6 +86,9 @@ export default function projectValidateStates(
   };
 
   let blockIndentionMoreThan = -1;
+  const selectedId = localState.get('selectedId');
+  let foundSelectedId = false;
+
   let newVisibleOrder = fromJS([]);
   const generateVisibleOrder = taskId => {
     const indention = clientState.getIn(['indention', taskId]);
@@ -100,6 +103,9 @@ export default function projectValidateStates(
       !localState.getIn(['expanded', taskId])
     ) {
       blockIndentionMoreThan = indention;
+    }
+    if (selectedId && selectedId === taskId) {
+      foundSelectedId = true;
     }
     newVisibleOrder = newVisibleOrder.push(taskId);
   };
@@ -120,6 +126,9 @@ export default function projectValidateStates(
     const taskId = order.get(index);
     checkIndentionForTask(taskId);
     generateVisibleOrder(taskId);
+  }
+  if (selectedId && !foundSelectedId) {
+    localState = localState.set('selectedId', null).set('selectionState', null);
   }
 
   // Update max indention if needed
