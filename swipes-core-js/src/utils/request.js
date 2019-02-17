@@ -2,18 +2,9 @@ import * as types from '../redux/constants';
 import storeGet from './store/storeGet';
 import handleUpdatesNeeded from './handleUpdatesNeeded';
 
-export default (options, data) => {
+export default (endpoint, data, options = {}) => {
   const store = storeGet();
   const apiUrl = `${store.getState().global.get('apiUrl')}/v1/`;
-  let command;
-  if (typeof options !== 'object') {
-    command = `${options}`;
-    options = null;
-  } else {
-    command = options.command;
-  }
-
-  options = options || {};
 
   const { auth, connection, global } = store.getState();
   const updateRequired = connection.getIn(['versionInfo', 'updateRequired']);
@@ -51,7 +42,7 @@ export default (options, data) => {
   };
   let redirectUrl;
   return new Promise((resolve, reject) => {
-    fetch(apiUrl + command, serData)
+    fetch(apiUrl + endpoint, serData)
       .then(r => {
         if (
           r &&
@@ -79,7 +70,7 @@ export default (options, data) => {
             });
           }
           store.dispatch({
-            type: command,
+            type: endpoint,
             payload: res
           });
         } else {
@@ -94,7 +85,7 @@ export default (options, data) => {
       })
       .catch(e => {
         if (store.getState().global.get('isDev')) {
-          console.warn(command, e);
+          console.warn(endpoint, e);
         }
 
         if (typeof e.ok === 'boolean') {

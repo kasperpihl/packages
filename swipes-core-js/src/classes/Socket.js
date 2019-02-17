@@ -1,5 +1,6 @@
-import * as types from '../redux/constants';
-import request from '../utils/request';
+import * as types from 'src/redux/constants';
+import request from 'src/utils/request';
+import randomString from 'src/utils/randomString';
 
 export default class Socket {
   constructor(store, options) {
@@ -7,6 +8,7 @@ export default class Socket {
     this.store = store;
     this.options = options;
     this.reconnect_attempts = 0;
+    this.subscribtions = {};
     const version = store.getState().global.get('version');
     // Send in the current version. We use this to check if its different from last open
     store.dispatch({ type: types.SET_LAST_VERSION, payload: { version } });
@@ -16,6 +18,14 @@ export default class Socket {
       window.addEventListener('beforeunload', () => this.forceClose(true));
     }
   }
+  subscribe = handler => {
+    const id = randomString(5);
+    this.subscribtions[id] = handler;
+    return this.unsubscribe.bind(null, id);
+  };
+  unsubscribe = id => {
+    delete this.subscribtions[id];
+  };
   storeChange = () => {
     const { connection, auth } = this.store.getState();
     const shouldReset = !!(!auth.get('token') && this.token);
@@ -146,8 +156,13 @@ export default class Socket {
       return;
     }
 
-    if (type === 'update' && window && window.ipcListener) {
-      window.ipcListener.handleDesktopNotifications(payload);
+    if (type === 'update') {
+      if (window && window.ipcListener) {
+        window.ipcListener.handleDesktopNotifications(payload);
+      }
+      payload.updates.forEach(update => {
+        Object.values(this.subscribtions).forEach(handler => handler(update));
+      });
     }
     this.store.dispatch({ type, payload });
   };
