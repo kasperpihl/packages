@@ -24,25 +24,24 @@ export default function cacheReducer(state = initialState, action) {
       return state.deleteIn(payload.path);
     }
     case 'update': {
-      payload.updates.forEach(({ type, data }) => {
-        if (type === 'discussion') {
-          if (data.deleted) {
-            state = state.deleteIn(['discussion', data.discussion_id]);
-            state = state.deleteIn(['comment', data.discussion_id]);
-          } else {
-            state = state.mergeIn(
-              ['discussion', data.discussion_id],
-              fromJS(data)
-            );
-          }
-        }
-        if (type === 'comment') {
+      const { type, data } = payload;
+      if (type === 'discussion') {
+        if (data.deleted) {
+          state = state.deleteIn(['discussion', data.discussion_id]);
+          state = state.deleteIn(['comment', data.discussion_id]);
+        } else {
           state = state.mergeIn(
-            ['comment', data.discussion_id, data.comment_id],
+            ['discussion', data.discussion_id],
             fromJS(data)
           );
         }
-      });
+      }
+      if (type === 'comment') {
+        state = state.mergeIn(
+          ['comment', data.discussion_id, data.comment_id],
+          fromJS(data)
+        );
+      }
       return state;
     }
     case types.RESET_STATE: {

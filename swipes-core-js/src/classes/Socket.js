@@ -3,7 +3,7 @@ import request from 'src/utils/request';
 import randomString from 'src/utils/randomString';
 
 export default class Socket {
-  constructor(store, options) {
+  constructor(store, options = {}) {
     window.socket = this;
     this.store = store;
     this.options = options;
@@ -155,16 +155,23 @@ export default class Socket {
     if (!type || !this.isConnected) {
       return;
     }
-
     if (type === 'update') {
+      return this.handleUpdate(payload);
+    }
+    return this.store.dispatch({ type, payload });
+  };
+
+  handleUpdate = update => {
+    if (this.lastUpdateId !== update.update_id) {
       if (window && window.ipcListener) {
-        window.ipcListener.handleDesktopNotifications(payload);
+        window.ipcListener.handleDesktopNotifications(update);
       }
-      payload.updates.forEach(update => {
-        Object.values(this.subscribtions).forEach(handler => handler(update));
+      this.lastUpdateId = update.update_id;
+      update.rows.forEach(r => {
+        Object.values(this.subscribtions).forEach(handler => handler(r));
+        this.store.dispatch({ type: 'update', payload: r });
       });
     }
-    this.store.dispatch({ type, payload });
   };
 
   timerForAttempt() {

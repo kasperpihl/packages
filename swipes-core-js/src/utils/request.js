@@ -63,11 +63,8 @@ export default (endpoint, data, options = {}) => {
           if (redirectUrl) {
             res.redirectUrl = redirectUrl;
           }
-          if (res.updates) {
-            store.dispatch({
-              type: 'update',
-              payload: { updates: res.updates }
-            });
+          if (res.update) {
+            window.socket.handleUpdate(res.update);
           }
           store.dispatch({
             type: endpoint,
