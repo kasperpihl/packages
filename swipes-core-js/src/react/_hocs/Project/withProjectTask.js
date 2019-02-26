@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import memoize from 'memoize-one';
 
-import ProjectContext from './ProjectContext';
+import { ProjectContext } from './ProjectProvider';
 
 export default WrappedComponent => {
   class WithProjectTask extends PureComponent {

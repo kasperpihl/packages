@@ -1,9 +1,7 @@
 // Main
 export const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 export const SET_UPDATE_STATUS = 'SET_UPDATE_STATUS';
-export const CACHE_SAVE = 'CACHE_SAVE';
-export const CACHE_SAVE_BATCH = 'CACHE_SAVE_BATCH';
-export const CACHE_CLEAR = 'CACHE_CLEAR';
+
 export const RESET_STATE = 'RESET_STATE';
 export const SET_LAST_VERSION = 'SET_LAST_VERSION';
 

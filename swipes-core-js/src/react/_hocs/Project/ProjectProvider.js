@@ -1,5 +1,6 @@
-import React from 'react';
-import ProjectContext from './ProjectContext';
+import React, { createContext } from 'react';
+
+export const ProjectContext = createContext({});
 
 export default function ProjectProvider({ stateManager, children }) {
   return (

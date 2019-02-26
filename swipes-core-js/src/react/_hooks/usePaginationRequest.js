@@ -31,6 +31,17 @@ export default function usePaginationRequest(endpoint, params, options) {
           return state;
         }
         return newItems;
+      case 'mergeItem': {
+        return state.map(item => {
+          if (item[idAttribute] === payload[idAttribute]) {
+            return { ...item, ...payload };
+          }
+          return item;
+        });
+      }
+      case 'appendItem': {
+        return state.concat([payload]);
+      }
       case 'seed':
         return action.payload;
       case 'new':
@@ -86,8 +97,18 @@ export default function usePaginationRequest(endpoint, params, options) {
     });
   };
 
+  const mergeItem = item => {
+    dispatch({ type: 'mergeItem', payload: item });
+  };
+
+  const appendItem = item => {
+    dispatch({ type: 'appendItem', payload: item });
+  };
+
   return {
     ...req,
+    mergeItem,
+    appendItem,
     hasMore: hasMoreRef.current,
     mergeItems,
     items,
