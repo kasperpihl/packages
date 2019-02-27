@@ -69,14 +69,15 @@ export default function usePaginationRequest(endpoint, params, options) {
 
   const fetchMoreRef = useCallbackRef(function(type) {
     if (!items) return;
-    let newParams = params;
-    if (items.length) {
+    const newParams = { ...params };
+    if (options.cursorKey === 'skip') {
+      // Support skip/limit
+      newParams.skip = type === 'new' ? 0 : items.length;
+    } else if (items.length) {
+      // Support cursor style >< key
       const index = type === 'new' ? 0 : items.length - 1;
-      newParams = {
-        ...params,
-        cursor: items[index][cursorKey],
-        fetch_new: type === 'new'
-      };
+      newParams.cursor = items[index][cursorKey];
+      newParams.fetch_new = type === 'new';
     }
     return fetchRequest(type, newParams);
   });
