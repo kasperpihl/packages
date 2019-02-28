@@ -35,10 +35,10 @@ export default class ProjectStateManager {
       expanded: {},
       visibleOrder: []
     });
-    [clientState, localState] = projectValidateStates(clientState, localState);
 
     this._clientState = clientState;
     this._localState = localState;
+
     this._subscriptions = {};
     this._destroyHandlers = [];
 
@@ -49,6 +49,11 @@ export default class ProjectStateManager {
     this.selectHandler = new ProjectSelectHandler(this);
     this.syncHandler = new ProjectSyncHandler(this);
     this.undoHandler = new ProjectUndoHandler(this);
+
+    [clientState, localState] = projectValidateStates(clientState, localState);
+    if (clientState !== this._clientState || localState !== this._localState) {
+      this._update({ localState, clientState });
+    }
   }
   unsubscribe = subId => {
     delete this._subscriptions[subId];

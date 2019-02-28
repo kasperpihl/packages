@@ -12,7 +12,7 @@ export default class ProjectSyncHandler {
     this.latestRev = this.currentServerState.get('rev');
     this.deletedIds = [];
     this.myUpdates = {};
-    this.throttledSync = throttle(this.syncIfNeeded, 5000);
+    this.throttledSync = throttle(this.syncIfNeeded, 1000);
     this.bouncedThrottle = debounce(this.throttledSync, 50);
     stateManager.subscribe(this.bouncedThrottle);
   }
@@ -27,7 +27,7 @@ export default class ProjectSyncHandler {
     let localState = this.stateManager.getLocalState();
 
     const { completion, indention, ordering, tasks_by_id, ...rest } = changes;
-    let deletedFromServerIds = [];
+
     if (completion) {
       clientState = clientState.mergeIn(
         ['completion'],
@@ -45,16 +45,14 @@ export default class ProjectSyncHandler {
     }
 
     if (ordering) {
+      clientState = clientState.set('ordering', fromJS(ordering));
+
+      let fullListOfIds = clientState.get('ordering');
+
       if (isDirty) {
-        // TODO: Proper deal with ordering when there is a conflict 🔥💣💥
-        // Merging is not the best algorithm for this.
-        clientState = clientState.mergeIn(
-          ['ordering'],
-          ordering,
-          localChanges.ordering
-        );
-      } else {
-        clientState = clientState.set('ordering', fromJS(ordering));
+        fullListOfIds = clientState
+          .mergeIn(['ordering'], ordering)
+          .get('ordering');
       }
 
       clientState = clientState.set(
@@ -69,13 +67,14 @@ export default class ProjectSyncHandler {
           .keySeq()
           .toList()
       );
-      this.currentServerState.get('sortedOrder').forEach(taskId => {
+
+      fullListOfIds.forEach((i, taskId) => {
         if (typeof ordering[taskId] !== 'number') {
-          deletedFromServerIds.push(taskId);
           clientState = clientState.deleteIn(['ordering', taskId]);
           clientState = clientState.deleteIn(['completion', taskId]);
           clientState = clientState.deleteIn(['indention', taskId]);
           clientState = clientState.deleteIn(['tasks_by_id', taskId]);
+
           localState = localState.deleteIn(['expanded', taskId]);
           localState = localState.deleteIn(['hasChildren', taskId]);
         }
@@ -86,6 +85,7 @@ export default class ProjectSyncHandler {
       Object.entries(tasks_by_id).forEach(([taskId, task]) => {
         const localTask =
           (localChanges.tasks_by_id && localChanges.tasks_by_id[taskId]) || {};
+
         clientState = clientState.mergeIn(
           ['tasks_by_id', taskId],
           fromJS(task),
@@ -146,7 +146,7 @@ export default class ProjectSyncHandler {
         server.completion[taskId] = cCompletion;
       }
 
-      if (sTask !== cTask) {
+      if (sTask !== cTask && cTask) {
         server.tasks_by_id[taskId] = cTask.toJS();
       }
     });
@@ -168,6 +168,10 @@ export default class ProjectSyncHandler {
     return null;
   };
   syncIfNeeded = () => {
+    if (this.isSyncing) {
+      this.bouncedThrottle();
+      return;
+    }
     this.bouncedThrottle.clear();
     this.throttledSync.clear();
     const server = this.getLocalChanges();
@@ -178,8 +182,9 @@ export default class ProjectSyncHandler {
     server.project_id = this.currentServerState.get('project_id');
     server.rev = this.latestRev;
     server.update_identifier = randomString(6);
-
+    this.isSyncing = true;
     request('project.sync', server).then(res => {
+      this.isSyncing = false;
       if (res.ok) {
         this.currentServerState = clientState;
         this.latestRev = res.rev;
