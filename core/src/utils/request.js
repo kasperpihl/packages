@@ -52,33 +52,40 @@ export default (endpoint, data, options = {}) => {
         ) {
           redirectUrl = r.url;
         }
+
         if (!r.headers.get('Content-Type')) {
           return Promise.reject(Error('No server response'));
         }
+
         return r.json();
       })
       .then(res => {
         if (res && res.ok) {
           handleUpdatesNeeded(res, store.getState(), store.dispatch);
+
           if (redirectUrl) {
             res.redirectUrl = redirectUrl;
           }
-          if (res.update) {
-            window.socket.handleUpdate(res.update);
-          }
+
           store.dispatch({
             type: endpoint,
             payload: res
           });
+
+          resolve(res);
+
+          if (res.update) {
+            setTimeout(() => {
+              window.socket.handleUpdate(res.update);
+            }, 1);
+          }
         } else {
           if (res.error === 'not_authed') {
             store.dispatch({ type: types.RESET_STATE });
           }
+
           return Promise.reject(res);
         }
-
-        // Let's return a promise for convenience.
-        resolve(res);
       })
       .catch(e => {
         if (store.getState().global.get('isDev')) {
