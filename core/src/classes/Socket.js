@@ -8,7 +8,7 @@ export default class Socket {
     this.store = store;
     this.options = options;
     this.reconnect_attempts = 0;
-    this.subscribtions = {};
+    this.subscriptions = {};
     const version = store.getState().global.get('version');
     // Send in the current version. We use this to check if its different from last open
     store.dispatch({ type: types.SET_LAST_VERSION, payload: { version } });
@@ -20,11 +20,11 @@ export default class Socket {
   }
   subscribe = handler => {
     const id = randomString(5);
-    this.subscribtions[id] = handler;
+    this.subscriptions[id] = handler;
     return this.unsubscribe.bind(null, id);
   };
   unsubscribe = id => {
-    delete this.subscribtions[id];
+    delete this.subscriptions[id];
   };
   storeChange = () => {
     const { connection, auth } = this.store.getState();
@@ -168,7 +168,7 @@ export default class Socket {
       }
       this.lastUpdateId = update.update_id;
       update.rows.forEach(r => {
-        Object.values(this.subscribtions).forEach(handler => handler(r));
+        Object.values(this.subscriptions).forEach(handler => handler(r));
         this.store.dispatch({ type: 'update', payload: r });
       });
     }
