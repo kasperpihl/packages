@@ -22,15 +22,6 @@ export default function usePaginationRequest(endpoint, params, options) {
     const hasAlreadyFilter = item =>
       !action.payload.find(it => item[idAttribute] === it[idAttribute]);
     switch (action.type) {
-      case 'merge':
-        const newItems = action.payload.handler(state);
-        if (!Array.isArray(newItems)) {
-          console.warn(
-            'usePaginationRequest mergeItems did not return an array as expected'
-          );
-          return state;
-        }
-        return newItems;
       case 'mergeItem': {
         return state.map(item => {
           if (item[idAttribute] === action.payload[idAttribute]) {
@@ -90,16 +81,6 @@ export default function usePaginationRequest(endpoint, params, options) {
     dispatch({ type: 'seed', payload: res[resultPath] });
   });
 
-  const mergeItems = handler => {
-    if (typeof handler !== 'function') {
-      throw Error('mergeItems expects function as first param');
-    }
-    dispatch({
-      type: 'merge',
-      payload: { handler }
-    });
-  };
-
   const mergeItem = item => {
     dispatch({ type: 'mergeItem', payload: item });
   };
@@ -113,7 +94,6 @@ export default function usePaginationRequest(endpoint, params, options) {
     hasMore: hasMoreRef.current,
     mergeItem,
     appendItem,
-    mergeItems,
     items,
     fetchNew,
     fetchNext
