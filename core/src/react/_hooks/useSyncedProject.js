@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { fromJS } from 'immutable';
 import ProjectStateManager from 'core/classes/ProjectStateManager';
 import useUpdate from 'core/react/_hooks/useUpdate';
-import useUnmountedRef from 'src/react/_hooks/useUnmountedRef';
 import request from 'core/utils/request';
 
 export default function useSyncedProject(projectId) {
-  const unmountedRef = useUnmountedRef();
+  const unmountedRef = useRef();
   const [stateManager, setStateManager] = useState();
 
   useEffect(() => {
@@ -20,6 +19,9 @@ export default function useSyncedProject(projectId) {
         throw Error('Could not load project');
       }
     });
+    return () => {
+      unmountedRef.current = true;
+    };
   }, []);
 
   useUpdate('project', project => {
