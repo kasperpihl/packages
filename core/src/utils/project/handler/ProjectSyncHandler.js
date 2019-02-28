@@ -1,18 +1,102 @@
+import { fromJS } from 'immutable';
+import throttle from 'src/utils/throttle';
 import debounce from 'src/utils/debounce';
 import request from 'src/utils/request';
 import randomString from 'src/utils/randomString';
+import projectValidateStates from 'src/utils/project/projectValidateStates';
 
 export default class ProjectSyncHandler {
   constructor(stateManager) {
     this.stateManager = stateManager;
     this.currentServerState = stateManager.getClientState();
+    this.latestRev = this.currentServerState.get('rev');
     this.deletedIds = [];
     this.myUpdates = {};
-    this.bouncedSync = debounce(this.syncIfNeeded, 5000);
-    stateManager.subscribe(this.bouncedSync);
+    this.throttledSync = throttle(this.syncIfNeeded, 5000);
+    this.bouncedThrottle = debounce(this.throttledSync, 50);
+    stateManager.subscribe(this.bouncedThrottle);
   }
-  syncIfNeeded = () => {
-    this.bouncedSync.clear();
+  mergeChange = async changes => {
+    if (changes.rev <= this.latestRev) {
+      return;
+    }
+    const localChanges = this.getLocalChanges() || {};
+
+    let clientState = this.stateManager.getClientState();
+    let localState = this.stateManager.getLocalState();
+
+    const { completion, indention, ordering, tasks_by_id, ...rest } = changes;
+    let deletedFromServerIds = [];
+    if (completion) {
+      clientState = clientState.mergeIn(
+        ['completion'],
+        completion,
+        localChanges.completion
+      );
+    }
+
+    if (indention) {
+      clientState = clientState.mergeIn(
+        ['indention'],
+        indention,
+        localChanges.indention
+      );
+    }
+
+    if (ordering) {
+      clientState = clientState.mergeIn(
+        ['ordering'],
+        ordering,
+        localChanges.ordering
+      );
+      clientState = clientState.set(
+        'sortedOrder',
+        clientState
+          .get('ordering')
+          .sort((a, b) => {
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
+          })
+          .keySeq()
+          .toList()
+      );
+      this.currentServerState.get('sortedOrder').forEach(taskId => {
+        if (typeof ordering[taskId] !== 'number') {
+          deletedFromServerIds.push(taskId);
+          clientState = clientState.deleteIn(['ordering', taskId]);
+          clientState = clientState.deleteIn(['completion', taskId]);
+          clientState = clientState.deleteIn(['indention', taskId]);
+          clientState = clientState.deleteIn(['tasks_by_id', taskId]);
+          localState = localState.deleteIn(['expanded', taskId]);
+          localState = localState.deleteIn(['hasChildren', taskId]);
+        }
+      });
+    }
+
+    if (tasks_by_id) {
+      Object.entries(tasks_by_id).forEach(([taskId, task]) => {
+        const localTask =
+          (localChanges.tasks_by_id && localChanges.tasks_by_id[taskId]) || {};
+        clientState = clientState.mergeIn(
+          ['tasks_by_id', taskId],
+          fromJS(task),
+          fromJS(localTask)
+        );
+      });
+    }
+
+    clientState = clientState.mergeDeep(rest);
+
+    [clientState, localState] = projectValidateStates(clientState, localState);
+
+    this.stateManager._update({ clientState, localState });
+    if (!Object.keys(localChanges).length) {
+      this.currentServerState = clientState;
+    }
+    this.latestRev = changes.rev;
+  };
+  getLocalChanges = () => {
     const clientState = this.stateManager.getClientState();
 
     const serverKeys = ['ordering', 'indention', 'completion', 'tasks_by_id'];
@@ -70,26 +154,31 @@ export default class ProjectSyncHandler {
     );
 
     if (Object.keys(server).length) {
-      server.project_id = this.currentServerState.get('project_id');
-      server.rev = this.currentServerState.get('rev');
-      server.update_identifier = randomString(6);
-      this.myUpdates[server.update_identifier] = true;
-      request('project.sync', server).then(res => {
-        if (res.ok) {
-          this.currentServerState = clientState.set('rev', server.rev + 1);
-        }
-      });
+      return server;
     }
+    return null;
   };
-  mergeNewServerVersion(newServerState, updateIdentifier) {
-    if (this.myUpdates[updateIdentifier]) {
-      return delete this.myUpdates[updateIdentifier];
+  syncIfNeeded = () => {
+    this.bouncedThrottle.clear();
+    this.throttledSync.clear();
+    const server = this.getLocalChanges();
+    if (!server) {
+      return;
     }
-    this.currentServerState = this.currentServerState.mergeDeep(newServerState);
-    let { clientState } = this.state;
-    clientState = clientState.mergeDeep(newServerState);
-    this.stateManager._update({ clientState });
-  }
+    const clientState = this.stateManager.getClientState();
+    server.project_id = this.currentServerState.get('project_id');
+    server.rev = this.latestRev;
+    server.update_identifier = randomString(6);
+
+    request('project.sync', server).then(res => {
+      if (res.ok) {
+        this.currentServerState = clientState;
+        this.latestRev = res.rev;
+      } else {
+        this.bouncedThrottle();
+      }
+    });
+  };
   delete = id => {
     this.deletedIds.push(id);
   };
