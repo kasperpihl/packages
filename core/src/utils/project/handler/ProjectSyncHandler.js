@@ -21,6 +21,7 @@ export default class ProjectSyncHandler {
       return;
     }
     const localChanges = this.getLocalChanges() || {};
+    const isDirty = !!Object.keys(localChanges).length;
 
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
@@ -44,11 +45,18 @@ export default class ProjectSyncHandler {
     }
 
     if (ordering) {
-      clientState = clientState.mergeIn(
-        ['ordering'],
-        ordering,
-        localChanges.ordering
-      );
+      if (isDirty) {
+        // TODO: Proper deal with ordering when there is a conflict 🔥💣💥
+        // Merging is not the best algorithm for this.
+        clientState = clientState.mergeIn(
+          ['ordering'],
+          ordering,
+          localChanges.ordering
+        );
+      } else {
+        clientState = clientState.set('ordering', fromJS(ordering));
+      }
+
       clientState = clientState.set(
         'sortedOrder',
         clientState
