@@ -16,7 +16,6 @@ the full state for a ProjectOverview, it achieves this with help from
 */
 export default class ProjectStateManager {
   constructor(serverState) {
-    console.log(serverState.toJS());
     let clientState = serverState.set(
       'sortedOrder',
       serverState

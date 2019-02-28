@@ -48,7 +48,7 @@ export default class ProjectEditHandler {
     this.stateManager.syncHandler.delete(id);
 
     localState = localState.deleteIn(['expanded', id]);
-    localState = localState.deleteIn(['clientState', id]);
+    localState = localState.deleteIn(['hasChildren', id]);
     localState = localState.set('selectedId', prevId);
     localState = localState.set('selectionStart', null);
 
