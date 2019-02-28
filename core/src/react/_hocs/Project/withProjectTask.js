@@ -84,7 +84,11 @@ export default WrappedComponent => {
               this.generateProps();
             }
             // Make sure deleted tasks does not get rendered
-            if (!this.generatedProps) return null;
+            if (
+              !this.generatedProps ||
+              typeof this.generatedProps.title === 'undefined'
+            )
+              return null;
             return (
               <WrappedComponent
                 {...this.props}

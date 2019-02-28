@@ -89,6 +89,7 @@ export default class ProjectSyncHandler {
     clientState = clientState.mergeDeep(rest);
 
     [clientState, localState] = projectValidateStates(clientState, localState);
+    [clientState, localState] = projectValidateStates(clientState, localState);
 
     this.stateManager._update({ clientState, localState });
     if (!Object.keys(localChanges).length) {
