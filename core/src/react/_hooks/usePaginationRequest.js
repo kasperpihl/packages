@@ -30,6 +30,13 @@ export default function usePaginationRequest(endpoint, params, options) {
           return item;
         });
       }
+      case 'prependItem': {
+        return [action.payload].concat(
+          state.filter(
+            item => item[idAttribute] !== action.payload[idAttribute]
+          )
+        );
+      }
       case 'appendItem': {
         return state
           .filter(item => item[idAttribute] !== action.payload[idAttribute])
@@ -81,18 +88,17 @@ export default function usePaginationRequest(endpoint, params, options) {
     dispatch({ type: 'seed', payload: res[resultPath] });
   });
 
-  const mergeItem = item => {
-    dispatch({ type: 'mergeItem', payload: item });
-  };
+  const mergeItem = payload => dispatch({ type: 'mergeItem', payload });
 
-  const appendItem = item => {
-    dispatch({ type: 'appendItem', payload: item });
-  };
+  const prependItem = payload => dispatch({ type: 'prependItem', payload });
+
+  const appendItem = payload => dispatch({ type: 'appendItem', payload });
 
   return {
     ...req,
     hasMore: hasMoreRef.current,
     mergeItem,
+    prependItem,
     appendItem,
     items,
     fetchNew,
