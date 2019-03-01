@@ -30,6 +30,7 @@
     "memoize-one": "^5.0.0",
     "react-redux": "^6.0.0",
     "reselect": "^4.0.0",
-    "valjs": "0.0.28"
+    "valjs": "0.0.28",
+    "moment": "^2.22.2"
   }
 }
