@@ -6,9 +6,6 @@ export default class ProjectEditHandler {
   constructor(stateManager) {
     this.stateManager = stateManager;
   }
-  updateProjectName = name => {
-    this.stateManager._update({ name });
-  };
   updateTitle = (id, title) => {
     let clientState = this.stateManager.getClientState();
     clientState = clientState.setIn(['tasks_by_id', id, 'title'], title);

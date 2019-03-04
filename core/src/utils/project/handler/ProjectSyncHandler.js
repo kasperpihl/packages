@@ -111,8 +111,8 @@ export default class ProjectSyncHandler {
     const serverKeys = ['ordering', 'indention', 'completion', 'tasks_by_id'];
     const server = {};
 
-    if (clientState.get('name') !== this.currentServerState.get('name')) {
-      server.name = clientState.get('name');
+    if (clientState.get('title') !== this.currentServerState.get('title')) {
+      server.title = clientState.get('title');
     }
     if (
       clientState.get('completion_percentage') !==
