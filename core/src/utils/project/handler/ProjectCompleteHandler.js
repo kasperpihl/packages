@@ -10,6 +10,15 @@ export default class ProjectCompleteHandler {
   incomplete = id => {
     this._completeById(id, false);
   };
+  completeAll = (flag = true) => {
+    let clientState = this.stateManager.getClientState();
+    let localState = this.stateManager.getLocalState();
+    clientState.get('sortedOrder').forEach(taskId => {
+      clientState = clientState.setIn(['completion', taskId], flag);
+    });
+    [clientState, localState] = projectValidateStates(clientState, localState);
+    this.stateManager._update({ clientState });
+  };
   _completeById = (idToComplete, shouldComplete) => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
