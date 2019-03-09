@@ -1,4 +1,5 @@
 import { fromJS } from 'immutable';
+const defaultEmpty = fromJS({});
 
 export default function projectValidateStates(
   clientState,
@@ -93,17 +94,18 @@ export default function projectValidateStates(
   let filteredChildIndention = -1;
 
   let newVisibleOrder = fromJS([]);
-  const filterTasks = localState.getIn(['options', 'filteredTaskIds']);
+  const filteredTaskIds = localState.getIn(['options', 'filteredTaskIds']);
+  let indentComp = localState.get('indentComp') || defaultEmpty;
 
   const generateVisibleOrder = taskId => {
     const indention = clientState.getIn(['indention', taskId]);
 
-    if (filterTasks) {
+    if (filteredTaskIds) {
       if (filteredChildIndention > -1 && indention <= filteredChildIndention) {
         filteredChildIndention = -1;
       }
       if (filteredChildIndention === -1) {
-        if (filterTasks.indexOf(taskId) === -1) {
+        if (filteredTaskIds.indexOf(taskId) === -1) {
           return;
         }
         filteredChildIndention = indention;
@@ -116,6 +118,11 @@ export default function projectValidateStates(
     if (blockIndentionMoreThan > -1 && indention <= blockIndentionMoreThan) {
       blockIndentionMoreThan = -1;
     }
+
+    if (filteredTaskIds && filteredChildIndention !== indentComp.get(taskId)) {
+      indentComp = indentComp.set(taskId, filteredChildIndention);
+    }
+
     if (
       localState.getIn(['hasChildren', taskId]) &&
       !localState.getIn(['expanded', taskId])
@@ -157,6 +164,9 @@ export default function projectValidateStates(
   // Update visible order if needed
   if (localState.get('visibleOrder').size !== newVisibleOrder.size) {
     localState = localState.set('visibleOrder', newVisibleOrder);
+  }
+  if (localState.get('indentComp') !== indentComp) {
+    localState = localState.set('indentComp', indentComp);
   }
 
   // Update Completion percentage if needed
