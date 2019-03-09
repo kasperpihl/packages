@@ -10,7 +10,8 @@ export default class ProjectExpandHandler {
 
     clientState.get('sortedOrder').forEach(taskId => {
       const indention = clientState.getIn(['indention', taskId]);
-      const shouldBeExpanded = indention < depth;
+      const indentComp = localState.getIn(['indentComp', taskId]) || 0;
+      const shouldBeExpanded = indention - indentComp < depth;
       if (localState.getIn(['expanded', taskId]) !== shouldBeExpanded) {
         localState = localState.setIn(['expanded', taskId], shouldBeExpanded);
       }
