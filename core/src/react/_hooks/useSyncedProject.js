@@ -4,7 +4,7 @@ import ProjectStateManager from 'core/classes/ProjectStateManager';
 import useUpdate from 'core/react/_hooks/useUpdate';
 import request from 'core/utils/request';
 
-export default function useSyncedProject(projectId) {
+export default function useSyncedProject(projectId, options) {
   const unmountedRef = useRef();
   const [stateManager, setStateManager] = useState();
 
@@ -14,7 +14,9 @@ export default function useSyncedProject(projectId) {
     }).then(res => {
       if (res.ok) {
         !unmountedRef.current &&
-          setStateManager(new ProjectStateManager(fromJS(res.project)));
+          setStateManager(
+            new ProjectStateManager(fromJS(res.project), options)
+          );
       } else {
         throw Error('Could not load project');
       }

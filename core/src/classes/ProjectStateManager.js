@@ -15,7 +15,7 @@ The responsibility of State Manager is to handle
 the full state for a ProjectOverview, it achieves this with help from
 */
 export default class ProjectStateManager {
-  constructor(serverState) {
+  constructor(serverState, options) {
     let clientState = serverState.set(
       'sortedOrder',
       serverState
@@ -33,6 +33,7 @@ export default class ProjectStateManager {
       selectedId: null,
       sliderValue: 0,
       expanded: {},
+      options,
       visibleOrder: []
     });
 

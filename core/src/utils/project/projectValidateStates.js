@@ -90,10 +90,26 @@ export default function projectValidateStates(
   let blockIndentionMoreThan = -1;
   const selectedId = localState.get('selectedId');
   let foundSelectedId = false;
+  let filteredChildIndention = -1;
 
   let newVisibleOrder = fromJS([]);
+  const filterTasks = localState.getIn(['options', 'filteredTaskIds']);
+
   const generateVisibleOrder = taskId => {
     const indention = clientState.getIn(['indention', taskId]);
+
+    if (filterTasks) {
+      if (filteredChildIndention > -1 && indention <= filteredChildIndention) {
+        filteredChildIndention = -1;
+      }
+      if (filteredChildIndention === -1) {
+        if (filterTasks.indexOf(taskId) === -1) {
+          return;
+        }
+        filteredChildIndention = indention;
+      }
+    }
+
     if (blockIndentionMoreThan > -1 && indention > blockIndentionMoreThan) {
       return;
     }
