@@ -27,7 +27,7 @@ export default function useSyncedProject(projectId, options) {
   }, []);
 
   useUpdate('project', project => {
-    if (project.project_id === projectId) {
+    if (project.project_id === projectId && stateManager) {
       stateManager.syncHandler.mergeChange(project);
     }
   });

@@ -19,18 +19,36 @@ export default class ProjectExpandHandler {
     [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState });
   };
-  expand = id => {
-    this._expandById(id, true);
+  expand = (id, fully) => {
+    this._expandById(id, fully, true);
   };
-  collapse = id => {
-    this._expandById(id, false);
+  collapse = (id, fully) => {
+    this._expandById(id, fully, false);
   };
-  _expandById = (id, expand) => {
+  _expandById = (id, fully, expand) => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
 
     if (!localState.getIn(['hasChildren', id])) return;
     localState = localState.setIn(['expanded', id], expand);
+    if (fully) {
+      let deltaIndex = clientState.getIn(['ordering', id]);
+      const indention = clientState.getIn(['indention', id]);
+      let nextTaskId;
+      let nextTaskIndention;
+
+      do {
+        deltaIndex++;
+        nextTaskId = clientState.getIn(['sortedOrder', deltaIndex]);
+        nextTaskIndention = clientState.getIn(['indention', nextTaskId]);
+        if (
+          nextTaskIndention > indention &&
+          localState.getIn(['hasChildren', nextTaskId])
+        ) {
+          localState = localState.setIn(['expanded', nextTaskId], expand);
+        }
+      } while (nextTaskId && nextTaskIndention > indention);
+    }
     [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState });
   };

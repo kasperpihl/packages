@@ -1,8 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 
 export default function useProjectSlice(stateManager, slicer) {
+  const unmountedRef = useRef();
+
+  useEffect(
+    () => () => {
+      unmountedRef.current = true;
+    },
+    []
+  );
+
   const getNewState = () => {
-    if (!stateManager) return [];
+    if (!stateManager || unmountedRef.current) return [];
     return slicer(stateManager.getClientState(), stateManager.getLocalState());
   };
 

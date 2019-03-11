@@ -1,6 +1,7 @@
 import randomString from 'src/utils/randomString';
 import { fromJS } from 'immutable';
 import projectValidateStates from 'src/utils/project/projectValidateStates';
+import projectDeleteTaskId from 'src/utils/project/projectDeleteTaskId';
 
 export default class ProjectEditHandler {
   constructor(stateManager) {
@@ -19,6 +20,27 @@ export default class ProjectEditHandler {
     );
     this.stateManager._update({ clientState });
   };
+  deleteCompleted = () => {
+    let clientState = this.stateManager.getClientState();
+    let localState = this.stateManager.getLocalState();
+
+    clientState.get('sortedOrder').forEach(taskId => {
+      if (clientState.getIn(['completion', taskId])) {
+        [clientState, localState] = projectDeleteTaskId(
+          clientState,
+          localState,
+          taskId
+        );
+        this.stateManager.syncHandler.delete(taskId);
+      }
+    });
+
+    localState = localState.set('selectedId', null);
+    localState = localState.set('selectionStart', null);
+
+    [clientState, localState] = projectValidateStates(clientState, localState);
+    this.stateManager._update({ localState, clientState });
+  };
   delete = id => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
@@ -33,19 +55,13 @@ export default class ProjectEditHandler {
     const currentTitle = clientState.getIn(['tasks_by_id', id, 'title']);
     const prevId = visibleOrder.get(visibleIndex - 1);
 
-    clientState = clientState.set(
-      'sortedOrder',
-      clientState.get('sortedOrder').filter(taskId => taskId !== id)
+    [clientState, localState] = projectDeleteTaskId(
+      clientState,
+      localState,
+      id
     );
-    clientState = clientState.deleteIn(['ordering', id]);
-    clientState = clientState.deleteIn(['completion', id]);
-    clientState = clientState.deleteIn(['indention', id]);
-    clientState = clientState.deleteIn(['tasks_by_id', id]);
-
     this.stateManager.syncHandler.delete(id);
 
-    localState = localState.deleteIn(['expanded', id]);
-    localState = localState.deleteIn(['hasChildren', id]);
     localState = localState.set('selectedId', prevId);
     localState = localState.set('selectionStart', null);
 
