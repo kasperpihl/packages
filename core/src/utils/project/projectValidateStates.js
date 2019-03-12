@@ -94,7 +94,7 @@ export default function projectValidateStates(
   let filteredChildIndention = -1;
 
   let newVisibleOrder = fromJS([]);
-  const filteredTaskIds = localState.getIn(['options', 'filteredTaskIds']);
+  const filteredTaskIds = localState.get('filteredTaskIds');
   let indentComp = localState.get('indentComp') || defaultEmpty;
   let maxIndention = 0;
 

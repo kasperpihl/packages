@@ -1,6 +1,7 @@
 import ProjectCompleteHandler from 'src/utils/project/handler/ProjectCompleteHandler';
 import ProjectEditHandler from 'src/utils/project/handler/ProjectEditHandler';
 import ProjectExpandHandler from 'src/utils/project/handler/ProjectExpandHandler';
+import ProjectFilterHandler from 'src/utils/project/handler/ProjectFilterHandler';
 import ProjectIndentHandler from 'src/utils/project/handler/ProjectIndentHandler';
 import ProjectSelectHandler from 'src/utils/project/handler/ProjectSelectHandler';
 import ProjectSyncHandler from 'src/utils/project/handler/ProjectSyncHandler';
@@ -15,7 +16,7 @@ The responsibility of State Manager is to handle
 the full state for a ProjectOverview, it achieves this with help from
 */
 export default class ProjectStateManager {
-  constructor(serverState, options) {
+  constructor(serverState, localState) {
     let clientState = serverState.set(
       'sortedOrder',
       serverState
@@ -28,13 +29,13 @@ export default class ProjectStateManager {
         .keySeq()
         .toList()
     );
-    let localState = fromJS({
+    localState = fromJS({
       hasChildren: {},
       selectedId: null,
       sliderValue: 0,
       expanded: {},
-      options,
-      visibleOrder: []
+      visibleOrder: [],
+      ...localState
     });
 
     this._clientState = clientState;
@@ -45,6 +46,7 @@ export default class ProjectStateManager {
 
     this.completeHandler = new ProjectCompleteHandler(this);
     this.editHandler = new ProjectEditHandler(this);
+    this.filterHandler = new ProjectFilterHandler(this);
     this.expandHandler = new ProjectExpandHandler(this);
     this.indentHandler = new ProjectIndentHandler(this);
     this.selectHandler = new ProjectSelectHandler(this);
