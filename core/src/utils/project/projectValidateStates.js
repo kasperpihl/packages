@@ -104,6 +104,7 @@ export default function projectValidateStates(
     if (filteredTaskIds) {
       if (filteredChildIndention > -1 && indention <= filteredChildIndention) {
         filteredChildIndention = -1;
+        blockIndentionMoreThan = -1;
       }
       if (filteredChildIndention === -1) {
         if (filteredTaskIds.indexOf(taskId) === -1) {

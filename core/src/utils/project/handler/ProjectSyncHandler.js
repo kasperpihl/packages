@@ -3,6 +3,7 @@ import throttle from 'src/utils/throttle';
 import debounce from 'src/utils/debounce';
 import request from 'src/utils/request';
 import randomString from 'src/utils/randomString';
+import projectDeleteTaskId from 'src/utils/project/projectDeleteTaskId';
 import projectValidateStates from 'src/utils/project/projectValidateStates';
 
 export default class ProjectSyncHandler {
@@ -70,13 +71,11 @@ export default class ProjectSyncHandler {
 
       fullListOfIds.forEach((i, taskId) => {
         if (typeof ordering[taskId] !== 'number') {
-          clientState = clientState.deleteIn(['ordering', taskId]);
-          clientState = clientState.deleteIn(['completion', taskId]);
-          clientState = clientState.deleteIn(['indention', taskId]);
-          clientState = clientState.deleteIn(['tasks_by_id', taskId]);
-
-          localState = localState.deleteIn(['expanded', taskId]);
-          localState = localState.deleteIn(['hasChildren', taskId]);
+          [clientState, localState] = projectDeleteTaskId(
+            clientState,
+            localState,
+            taskId
+          );
         }
       });
     }
