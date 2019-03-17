@@ -20,6 +20,11 @@ export default class ProjectFilterHandler {
         localState,
         ensureVisible
       );
+    } else {
+      localState = localState.set(
+        'expanded',
+        localState.get('expanded').map(() => false)
+      );
     }
 
     [clientState, localState] = projectValidateStates(clientState, localState);
