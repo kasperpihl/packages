@@ -12,9 +12,9 @@ export default function useRequest(endpoint, params, callback) {
       if (!r.result) return r;
 
       const newR = { ...r };
-      const result = newR.result;
+      let result = newR.result;
       if (typeof data === 'function') {
-        result = data(result);
+        result[key] = data(result[key]);
       } else {
         result[key] = {
           ...result[key],
