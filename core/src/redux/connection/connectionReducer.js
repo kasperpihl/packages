@@ -26,16 +26,18 @@ export default function connectionReducer(state = initialState, action) {
         if (data.deleted) {
           state = state.deleteIn(['unread', data.discussion_id]);
         } else {
-          const lastReadAt =
-            data.followers[state.get('myId')] ||
-            state.getIn(['unread', data.discussion_id]) ||
-            null;
-          const lastMessageAt = data.last_comment_at;
-          if (lastMessageAt) {
-            if (lastMessageAt !== lastReadAt) {
-              state = state.setIn(['unread', data.discussion_id], lastReadAt);
-            } else {
-              state = state.deleteIn(['unread', data.discussion_id]);
+          if (data.followers) {
+            const lastReadAt =
+              data.followers[state.get('myId')] ||
+              state.getIn(['unread', data.discussion_id]) ||
+              null;
+            const lastMessageAt = data.last_comment_at;
+            if (lastMessageAt) {
+              if (lastMessageAt !== lastReadAt) {
+                state = state.setIn(['unread', data.discussion_id], lastReadAt);
+              } else {
+                state = state.deleteIn(['unread', data.discussion_id]);
+              }
             }
           }
         }
