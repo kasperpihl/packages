@@ -3,26 +3,29 @@ import storeGet from './store/storeGet';
 import handleUpdatesNeeded from './handleUpdatesNeeded';
 
 export default (endpoint, data, options = {}) => {
+  let apiUrl = `${location.origin}/v1/`;
+  let headerObj = {};
+
   const store = storeGet();
-  const apiUrl = `${store.getState().global.get('apiUrl')}/v1/`;
+  if (store) {
+    apiUrl = `${store.getState().global.get('apiUrl')}/v1/`;
+    const { auth, connection, global } = store.getState();
+    const updateRequired = connection.getIn(['versionInfo', 'updateRequired']);
+    const reloadRequired = connection.getIn(['versionInfo', 'reloadRequired']);
+    if (updateRequired || reloadRequired) {
+      return Promise.resolve({
+        ok: false,
+        update_required: updateRequired,
+        reload_required: reloadRequired
+      });
+    }
 
-  const { auth, connection, global } = store.getState();
-  const updateRequired = connection.getIn(['versionInfo', 'updateRequired']);
-  const reloadRequired = connection.getIn(['versionInfo', 'reloadRequired']);
-  if (updateRequired || reloadRequired) {
-    return Promise.resolve({
-      ok: false,
-      update_required: updateRequired,
-      reload_required: reloadRequired
-    });
+    const apiHeaders = global.get('apiHeaders');
+    headerObj = (apiHeaders && apiHeaders.toJS()) || {};
+    headerObj.Authorization = `Bearer ${auth.get('token')}`;
   }
-  const apiHeaders = global.get('apiHeaders');
-  const extraHeaders = (apiHeaders && apiHeaders.toJS()) || {};
 
-  const headers = new Headers({
-    Authorization: `Bearer ${auth.get('token')}`,
-    ...extraHeaders
-  });
+  const headers = new Headers(headerObj);
 
   let body;
   if (!options.formData) {
@@ -61,16 +64,18 @@ export default (endpoint, data, options = {}) => {
       })
       .then(res => {
         if (res && res.ok) {
-          handleUpdatesNeeded(res, store.getState(), store.dispatch);
-
           if (redirectUrl) {
             res.redirectUrl = redirectUrl;
           }
 
-          store.dispatch({
-            type: endpoint,
-            payload: res
-          });
+          if (store) {
+            handleUpdatesNeeded(res, store.getState(), store.dispatch);
+
+            store.dispatch({
+              type: endpoint,
+              payload: res
+            });
+          }
 
           resolve(res);
 
@@ -80,7 +85,7 @@ export default (endpoint, data, options = {}) => {
             }, 1);
           }
         } else {
-          if (res.error === 'not_authed') {
+          if (res.error === 'not_authed' && store) {
             store.dispatch({ type: types.RESET_STATE });
           }
 
@@ -88,10 +93,6 @@ export default (endpoint, data, options = {}) => {
         }
       })
       .catch(e => {
-        if (store.getState().global.get('isDev')) {
-          console.warn(endpoint, e);
-        }
-
         if (typeof e.ok === 'boolean') {
           return resolve(e);
         }
