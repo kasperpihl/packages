@@ -1,10 +1,12 @@
 import * as types from 'src/redux/constants';
 import request from 'src/utils/request';
 import randomString from 'src/utils/randomString';
+import { setStore } from 'src/utils/store/storeGet';
 
 export default class Socket {
   constructor(store, options = {}) {
     window.socket = this;
+    setStore(store); // Make store accessible from core
     this.store = store;
     this.options = options;
     this.reconnect_attempts = 0;

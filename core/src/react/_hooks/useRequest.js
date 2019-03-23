@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import request from 'src/utils/request';
+import useConnected from 'src/react/_hooks/useConnected';
 
 export default function useRequest(endpoint, params, callback) {
   const [reqId, setReqId] = useState(1);
+  const connected = useConnected();
 
   const defaultState = { loading: true, retry, merge };
   const [req, setReq] = useState(defaultState);
@@ -34,6 +36,11 @@ export default function useRequest(endpoint, params, callback) {
     }
     setReqId(count => count + 1);
   }
+
+  useEffect(() => {
+    console.log(req.result, connected);
+    if (req.result && connected) retry();
+  }, [connected]);
 
   const uniqueResRef = useRef(null);
 
