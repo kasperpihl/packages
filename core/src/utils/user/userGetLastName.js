@@ -1,7 +1,7 @@
 import userGet from './userGet';
 
-export default (userId, organizationId) => {
-  const user = userGet(userId, organizationId);
+export default (userId, teamId) => {
+  const user = userGet(userId, teamId);
   if (!user) {
     return undefined;
   }

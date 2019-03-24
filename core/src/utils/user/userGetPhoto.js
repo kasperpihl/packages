@@ -1,6 +1,6 @@
 import userGet from './userGet';
 
-export default (userId, organizationId, size) => {
+export default (userId, teamId, size) => {
   const sizes = [192, 96, 64];
   if (sizes.indexOf(size) === -1) {
     size = 192;
@@ -8,7 +8,7 @@ export default (userId, organizationId, size) => {
 
   const sizeString = `${size}x${size}`;
 
-  const user = userGet(userId, organizationId);
+  const user = userGet(userId, teamId);
   if (!user) {
     return undefined;
   }

@@ -1,12 +1,12 @@
 import storeGet from '../store/storeGet';
 
-export default function orgGetBelonging(ownedBy) {
+export default function teamGetBelonging(ownedBy) {
   if (ownedBy.startsWith('U')) {
     return 'Personal';
   }
   return (
     storeGet()
       .getState()
-      .organizations.getIn([ownedBy, 'name']) || 'Unknown'
+      .teams.getIn([ownedBy, 'name']) || 'Unknown'
   );
 }
