@@ -3,7 +3,10 @@ import storeGet from './store/storeGet';
 import handleUpdatesNeeded from './handleUpdatesNeeded';
 
 export default (endpoint, data, options = {}) => {
-  let apiUrl = `${location.origin}/v1/`;
+  let apiUrl = '';
+  if (typeof location !== 'undefined') {
+    apiUrl = `${location.origin}/v1/`;
+  }
   let headerObj = {};
 
   const store = storeGet();
