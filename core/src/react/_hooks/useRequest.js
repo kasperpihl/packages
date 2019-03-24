@@ -38,7 +38,6 @@ export default function useRequest(endpoint, params, callback) {
   }
 
   useEffect(() => {
-    console.log(req.result, connected);
     if (req.result && connected) retry();
   }, [connected]);
 

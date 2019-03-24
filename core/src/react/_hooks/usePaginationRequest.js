@@ -2,7 +2,6 @@ import { useRef, useReducer, useEffect } from 'react';
 import request from 'src/utils/request';
 import useCallbackRef from 'src/react/_hooks/useCallbackRef';
 import useRequest from 'src/react/_hooks/useRequest';
-import useConnected from 'src/react/_hooks/useConnected';
 
 export default function usePaginationRequest(endpoint, params, options) {
   if (
@@ -18,7 +17,6 @@ export default function usePaginationRequest(endpoint, params, options) {
 
   const { idAttribute, cursorKey, resultPath } = options;
   const hasMoreRef = useRef(false);
-  const connected = useConnected();
 
   const [items, dispatch] = useReducer((state, action) => {
     const hasAlreadyFilter = item =>
@@ -89,12 +87,6 @@ export default function usePaginationRequest(endpoint, params, options) {
     hasMoreRef.current = res.has_more;
     dispatch({ type: 'seed', payload: res[resultPath] });
   });
-
-  useEffect(() => {
-    if (items && connected) {
-      req.retry();
-    }
-  }, [connected]);
 
   const mergeItem = payload => dispatch({ type: 'mergeItem', payload });
 
