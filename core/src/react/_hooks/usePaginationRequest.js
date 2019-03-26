@@ -48,6 +48,8 @@ export default function usePaginationRequest(endpoint, params, options) {
         return action.payload.concat(state.filter(hasAlreadyFilter));
       case 'next':
         return state.filter(hasAlreadyFilter).concat(action.payload);
+      case 'reset':
+        return null;
     }
   }, null);
 
@@ -96,6 +98,10 @@ export default function usePaginationRequest(endpoint, params, options) {
 
   return {
     ...req,
+    retry: reset => {
+      dispatch({ type: 'reset' });
+      req.retry(reset);
+    },
     hasMore: hasMoreRef.current,
     mergeItem,
     prependItem,
