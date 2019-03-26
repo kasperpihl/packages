@@ -12,11 +12,11 @@ export default function useSyncedProject(projectId, localState, callback) {
     request('project.get', {
       project_id: projectId
     }).then(res => {
+      if (unmountedRef.current) return;
       if (res.ok) {
-        !unmountedRef.current &&
-          setStateManager(
-            new ProjectStateManager(fromJS(res.project), localState)
-          );
+        setStateManager(
+          new ProjectStateManager(fromJS(res.project), localState)
+        );
         callback && callback(null, res.project);
       } else {
         callback && callback(res.error);

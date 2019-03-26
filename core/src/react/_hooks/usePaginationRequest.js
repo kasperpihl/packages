@@ -22,6 +22,11 @@ export default function usePaginationRequest(endpoint, params, options) {
     const hasAlreadyFilter = item =>
       !action.payload.find(it => item[idAttribute] === it[idAttribute]);
     switch (action.type) {
+      case 'removeItem': {
+        return state.filter(
+          item => item[idAttribute] !== action.payload[idAttribute]
+        );
+      }
       case 'mergeItem': {
         return state.map(item => {
           if (item[idAttribute] === action.payload[idAttribute]) {
@@ -90,6 +95,8 @@ export default function usePaginationRequest(endpoint, params, options) {
     dispatch({ type: 'seed', payload: res[resultPath] });
   });
 
+  const removeItem = payload => dispatch({ type: 'removeItem', payload });
+
   const mergeItem = payload => dispatch({ type: 'mergeItem', payload });
 
   const prependItem = payload => dispatch({ type: 'prependItem', payload });
@@ -105,6 +112,7 @@ export default function usePaginationRequest(endpoint, params, options) {
     hasMore: hasMoreRef.current,
     mergeItem,
     prependItem,
+    removeItem,
     appendItem,
     items,
     fetchNew,
