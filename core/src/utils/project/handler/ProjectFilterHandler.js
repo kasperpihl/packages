@@ -6,6 +6,17 @@ export default class ProjectFilterHandler {
   constructor(stateManager) {
     this.stateManager = stateManager;
   }
+  setFilteredAssignee = assigneeId => {
+    let clientState = this.stateManager.getClientState();
+    let localState = this.stateManager.getLocalState();
+
+    localState = localState
+      .set('filteredAssignee', assigneeId)
+      .set('indentComp', null);
+
+    [clientState, localState] = projectValidateStates(clientState, localState);
+    this.stateManager._update({ localState, clientState });
+  };
   setFilteredTaskIds = (filteredTaskIds, ensureVisible) => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();

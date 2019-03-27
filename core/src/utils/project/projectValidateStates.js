@@ -1,5 +1,6 @@
 import { fromJS } from 'immutable';
-const defaultEmpty = fromJS({});
+const defaultMap = fromJS({});
+const defaultList = fromJS([]);
 
 export default function projectValidateStates(
   clientState,
@@ -95,7 +96,8 @@ export default function projectValidateStates(
 
   let newVisibleOrder = fromJS([]);
   const filteredTaskIds = localState.get('filteredTaskIds');
-  let indentComp = localState.get('indentComp') || defaultEmpty;
+  const filteredAssignee = localState.get('filteredAssignee');
+  let indentComp = localState.get('indentComp') || defaultMap;
   let maxIndention = 0;
 
   const generateVisibleOrder = taskId => {
@@ -107,7 +109,13 @@ export default function projectValidateStates(
         blockIndentionMoreThan = -1;
       }
       if (filteredChildIndention === -1) {
-        if (filteredTaskIds.indexOf(taskId) === -1) {
+        const assignees =
+          clientState.getIn(['tasks_by_id', taskId, 'assignees']) ||
+          defaultList;
+        if (filteredTaskIds && filteredTaskIds.indexOf(taskId) === -1) {
+          return;
+        }
+        if (filteredAssignee && assignees.indexOf(filteredAssignee) === -1) {
           return;
         }
         filteredChildIndention = indention;
