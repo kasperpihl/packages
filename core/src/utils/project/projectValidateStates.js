@@ -97,6 +97,7 @@ export default function projectValidateStates(
   let newVisibleOrder = fromJS([]);
   const filteredTaskIds = localState.get('filteredTaskIds');
   const filteredAssignee = localState.get('filteredAssignee');
+  const filteredCompleted = localState.get('filteredCompleted');
   let indentComp = localState.get('indentComp') || defaultMap;
   let maxIndention = 0;
 
@@ -116,6 +117,9 @@ export default function projectValidateStates(
           return;
         }
         if (filteredAssignee && assignees.indexOf(filteredAssignee) === -1) {
+          return;
+        }
+        if (filteredCompleted && clientState.getIn(['completion', taskId])) {
           return;
         }
         filteredChildIndention = indention;
