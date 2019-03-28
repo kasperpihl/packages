@@ -3,6 +3,7 @@ import ProjectEditHandler from 'src/utils/project/handler/ProjectEditHandler';
 import ProjectExpandHandler from 'src/utils/project/handler/ProjectExpandHandler';
 import ProjectFilterHandler from 'src/utils/project/handler/ProjectFilterHandler';
 import ProjectIndentHandler from 'src/utils/project/handler/ProjectIndentHandler';
+import ProjectQueryHandler from 'src/utils/project/handler/ProjectQueryHandler';
 import ProjectSelectHandler from 'src/utils/project/handler/ProjectSelectHandler';
 import ProjectSyncHandler from 'src/utils/project/handler/ProjectSyncHandler';
 import ProjectUndoHandler from 'src/utils/project/handler/ProjectUndoHandler';
@@ -49,6 +50,7 @@ export default class ProjectStateManager {
     this.filterHandler = new ProjectFilterHandler(this);
     this.expandHandler = new ProjectExpandHandler(this);
     this.indentHandler = new ProjectIndentHandler(this);
+    this.queryHandler = new ProjectQueryHandler(this);
     this.selectHandler = new ProjectSelectHandler(this);
     this.syncHandler = new ProjectSyncHandler(this);
     this.undoHandler = new ProjectUndoHandler(this);

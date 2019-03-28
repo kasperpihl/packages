@@ -85,6 +85,13 @@ export default class ProjectEditHandler {
     if (typeof selectionStart !== 'number') {
       selectionStart = currTitle.length;
     }
+
+    const indention = clientState.getIn(['indention', id]);
+
+    if (!currTitle.length && indention > 0) {
+      return this.stateManager.indentHandler.outdent(id);
+    }
+
     let nextTitle = '';
     if (selectionStart < currTitle.length) {
       nextTitle = currTitle.slice(selectionStart);
