@@ -2,6 +2,7 @@ import randomString from 'src/utils/randomString';
 import { fromJS } from 'immutable';
 import projectValidateStates from 'src/utils/project/projectValidateStates';
 import projectDeleteTaskId from 'src/utils/project/projectDeleteTaskId';
+import timeGetDefaultWeekYear from 'src/utils/time/timeGetDefaultWeekYear';
 
 export default class ProjectEditHandler {
   constructor(stateManager) {
@@ -77,7 +78,7 @@ export default class ProjectEditHandler {
     [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState, clientState });
   };
-  enter = (id, selectionStart = null) => {
+  enter = (id, selectionStart = null, callback) => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
 
@@ -117,6 +118,9 @@ export default class ProjectEditHandler {
     const currentIndention = clientState.getIn(['indention', id]);
     const currentHasChildren = localState.getIn(['hasChildren', id]);
     const currentIsExpanded = localState.getIn(['expanded', id]);
+    const project_id = clientState.get('project_id');
+    const owned_by = clientState.get('owned_by');
+    const yearWeek = timeGetDefaultWeekYear();
 
     let nextIndex = clientState.getIn(['ordering', id]) + 1;
     let nextIndention = currentIndention;
@@ -148,5 +152,6 @@ export default class ProjectEditHandler {
     [clientState, localState] = projectValidateStates(clientState, localState);
 
     this.stateManager._update({ clientState, localState });
+    callback(owned_by, yearWeek, project_id, newId);
   };
 }
