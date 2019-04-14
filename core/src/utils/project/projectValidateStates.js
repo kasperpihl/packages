@@ -17,8 +17,10 @@ export default function projectValidateStates(
   const allCompletedForLevel = {};
   let currentIndention = -1;
   let numberOfCompleted = 0;
+  let numberOfLeafs = 0;
   const checkCompletionForTask = taskId => {
     const indention = clientState.getIn(['indention', taskId]);
+    const hasChildren = localState.getIn(['hasChildren', taskId]);
     let completed = !!clientState.getIn(['completion', taskId]);
 
     const key = '' + indention; // Make sure key is a string
@@ -53,8 +55,11 @@ export default function projectValidateStates(
 
     // Make sure to update indent level
     currentIndention = indention;
-    if (completed) {
-      numberOfCompleted++;
+    if (!hasChildren) {
+      numberOfLeafs++;
+      if (completed) {
+        numberOfCompleted++;
+      }
     }
   };
 
@@ -185,9 +190,16 @@ export default function projectValidateStates(
     localState = localState.set('indentComp', indentComp);
   }
 
+  if (localState.get('numberOfLeafs') !== numberOfLeafs) {
+    localState = localState.set('numberOfLeafs', numberOfLeafs);
+  }
+  if (localState.get('numberOfCompleted') !== numberOfCompleted) {
+    localState = localState.set('numberOfCompleted', numberOfCompleted);
+  }
+
   // Update Completion percentage if needed
-  const percentageCompleted = order.size
-    ? Math.ceil((numberOfCompleted / order.size) * 100)
+  const percentageCompleted = numberOfLeafs
+    ? Math.ceil((numberOfCompleted / numberOfLeafs) * 100)
     : 0;
   if (clientState.get('completion_percentage') !== percentageCompleted) {
     clientState = clientState.set('completion_percentage', percentageCompleted);

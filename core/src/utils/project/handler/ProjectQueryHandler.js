@@ -4,6 +4,8 @@ export default class ProjectQueryHandler {
   }
   getCompletedAndTotal(taskId) {
     const clientState = this.stateManager.getClientState();
+    const localState = this.stateManager.getLocalState();
+
     let completed = 0;
     let total = 0;
     let dIndex = clientState.getIn(['ordering', taskId]);
@@ -15,12 +17,15 @@ export default class ProjectQueryHandler {
       if (total > 0 && indention <= targetIndention) {
         return [completed, total];
       }
-      total++;
-
-      const isCompleted = clientState.getIn(['completion', tId]);
-      if (isCompleted) {
-        completed++;
+      const hasChildren = localState.getIn(['hasChildren', tId]);
+      if (!hasChildren) {
+        total++;
+        const isCompleted = clientState.getIn(['completion', tId]);
+        if (isCompleted) {
+          completed++;
+        }
       }
+
       dIndex++;
     }
 

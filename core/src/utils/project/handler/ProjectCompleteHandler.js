@@ -17,7 +17,7 @@ export default class ProjectCompleteHandler {
       clientState = clientState.setIn(['completion', taskId], flag);
     });
     [clientState, localState] = projectValidateStates(clientState, localState);
-    this.stateManager._update({ clientState });
+    this.stateManager._update({ clientState, localState });
   };
   _completeById = (idToComplete, shouldComplete) => {
     let clientState = this.stateManager.getClientState();
@@ -45,6 +45,6 @@ export default class ProjectCompleteHandler {
 
     [clientState, localState] = projectValidateStates(clientState, localState);
 
-    this.stateManager._update({ clientState });
+    this.stateManager._update({ clientState, localState });
   };
 }
