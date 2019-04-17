@@ -7,6 +7,7 @@ const unescapeMap = {
   '&#x27;': "'",
   '&#x60;': '`'
 };
+const test = true;
 
 const createEscaper = map => {
   const escaper = match => map[match];
