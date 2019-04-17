@@ -7,6 +7,15 @@ export default class ProjectEditHandler {
   constructor(stateManager) {
     this.stateManager = stateManager;
   }
+  doneEditing = () => {
+    let clientState = this.stateManager.getClientState();
+    let localState = this.stateManager.getLocalState();
+    if (localState.get('editing')) {
+      localState = localState.set('selectedId', null).set('editing', false);
+    }
+    [clientState, localState] = projectValidateStates(clientState, localState);
+    this.stateManager._update({ localState, clientState });
+  };
   updateTitle = (id, title) => {
     let clientState = this.stateManager.getClientState();
     clientState = clientState.setIn(['tasks_by_id', id, 'title'], title);

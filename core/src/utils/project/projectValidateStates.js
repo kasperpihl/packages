@@ -55,8 +55,14 @@ export default function projectValidateStates(
 
     // Make sure to update indent level
     currentIndention = indention;
+  };
+
+  // Count leafs and completed
+  const countLeafsAndCompleted = taskId => {
+    const hasChildren = localState.getIn(['hasChildren', taskId]);
     if (!hasChildren) {
       numberOfLeafs++;
+      const completed = clientState.getIn(['completion', taskId]);
       if (completed) {
         numberOfCompleted++;
       }
@@ -96,7 +102,6 @@ export default function projectValidateStates(
 
   const selectedId = localState.get('selectedId');
   let foundSelectedId = false;
-  let filteredChildIndention = -1;
 
   let newVisibleOrder = fromJS([]);
   const filteredTaskIds = localState.get('filteredTaskIds');
@@ -114,65 +119,66 @@ export default function projectValidateStates(
 
   const generateVisibleOrder = taskId => {
     const indention = clientState.getIn(['indention', taskId]);
-
-    // filteredTaskIds
-    if (filteredTaskIds) {
-      if (filteredIndention > -1 && indention <= filteredIndention) {
-        filteredIndention = -1;
-      }
-      if (filteredTaskIds.indexOf(taskId) > -1) {
-        filteredIndention = indention;
-        visibleRootIndention = -1;
-        blockIndentionMoreThan = -1;
-      }
-      if (filteredIndention === -1) return;
-    }
-
-    // Support filters!
-    if (hasAnyFilter) {
-      if (visibleRootIndention > -1 && indention <= visibleRootIndention) {
-        visibleRootIndention = -1;
-      }
-      if (visibleRootIndention === -1) {
-        let matchedAllFilters = true;
-        const assignees =
-          clientState.getIn(['tasks_by_id', taskId, 'assignees']) ||
-          defaultList;
-
-        if (filteredAssignee && assignees.indexOf(filteredAssignee) === -1) {
-          matchedAllFilters = false;
-        } else if (
-          filteredCompleted &&
-          clientState.getIn(['completion', taskId])
-        ) {
-          matchedAllFilters = false;
+    if (!localState.get('editing') && (!selectedId || !foundSelectedId)) {
+      // filteredTaskIds
+      if (filteredTaskIds) {
+        if (filteredIndention > -1 && indention <= filteredIndention) {
+          filteredIndention = -1;
         }
-        if (matchedAllFilters) {
-          visibleRootIndention = indention;
+        if (filteredTaskIds.indexOf(taskId) > -1) {
+          filteredIndention = indention;
+          visibleRootIndention = -1;
           blockIndentionMoreThan = -1;
         }
+        if (filteredIndention === -1) return;
       }
-      if (visibleRootIndention === -1) {
+
+      // Support filters!
+      if (hasAnyFilter) {
+        if (visibleRootIndention > -1 && indention <= visibleRootIndention) {
+          visibleRootIndention = -1;
+        }
+        if (visibleRootIndention === -1) {
+          let matchedAllFilters = true;
+          const assignees =
+            clientState.getIn(['tasks_by_id', taskId, 'assignees']) ||
+            defaultList;
+
+          if (filteredAssignee && assignees.indexOf(filteredAssignee) === -1) {
+            matchedAllFilters = false;
+          } else if (
+            filteredCompleted &&
+            clientState.getIn(['completion', taskId])
+          ) {
+            matchedAllFilters = false;
+          }
+          if (matchedAllFilters) {
+            visibleRootIndention = indention;
+            blockIndentionMoreThan = -1;
+          }
+        }
+        if (visibleRootIndention === -1) {
+          return;
+        }
+      }
+
+      // Make sure to hide all completed, despite being children
+      if (filteredCompleted && clientState.getIn(['completion', taskId])) {
         return;
       }
-    }
 
-    // Make sure to hide all completed, despite being children
-    if (filteredCompleted && clientState.getIn(['completion', taskId])) {
-      return;
-    }
+      let comp = 0;
+      if (visibleRootIndention > -1) {
+        comp = visibleRootIndention;
+      } else if (filteredIndention > -1) {
+        comp = filteredIndention;
+      }
+      if (comp !== indentComp.get(taskId)) {
+        indentComp = indentComp.set(taskId, comp);
+      }
 
-    let comp = 0;
-    if (visibleRootIndention > -1) {
-      comp = visibleRootIndention;
-    } else if (filteredIndention > -1) {
-      comp = filteredIndention;
+      maxIndention = Math.max(maxIndention, indention - comp);
     }
-    if (comp !== indentComp.get(taskId)) {
-      indentComp = indentComp.set(taskId, comp);
-    }
-
-    maxIndention = Math.max(maxIndention, indention - comp);
 
     // Hide collapsed items
     if (blockIndentionMoreThan > -1 && indention > blockIndentionMoreThan) {
@@ -190,9 +196,6 @@ export default function projectValidateStates(
       blockIndentionMoreThan = indention;
     }
 
-    if (selectedId && selectedId === taskId) {
-      foundSelectedId = true;
-    }
     newVisibleOrder = newVisibleOrder.push(taskId);
   };
 
@@ -203,9 +206,13 @@ export default function projectValidateStates(
     index--
   ) {
     const taskId = order.get(index);
+    if (selectedId && selectedId === taskId) {
+      foundSelectedId = true;
+    }
     checkCompletionForTask(taskId);
     checkForOrderOfTask(taskId, index);
     checkHasChildrenForTask(taskId);
+    countLeafsAndCompleted(taskId);
   }
 
   for (let index = 0; index < clientState.get('sortedOrder').size; index++) {
@@ -215,6 +222,9 @@ export default function projectValidateStates(
   }
   if (selectedId && !foundSelectedId) {
     localState = localState.set('selectedId', null).set('selectionState', null);
+  }
+  if (localState.get('selectedId') && !localState.get('editing')) {
+    localState = localState.set('editing', true);
   }
 
   // Update max indention if needed

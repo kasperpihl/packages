@@ -1,20 +1,32 @@
+import projectValidateStates from 'src/utils/project/projectValidateStates';
+
 export default class ProjectSelectHandler {
   constructor(stateManager) {
     this.stateManager = stateManager;
   }
-  selectNext = (selectionStart = null) => {
-    this._selectWithModifier(1, selectionStart);
+  selectNext = currSelStart => {
+    this._selectWithModifier(1, currSelStart);
   };
-  selectPrev = (selectionStart = null) => {
-    this._selectWithModifier(-1, selectionStart);
+  selectPrev = currSelStart => {
+    this._selectWithModifier(-1, currSelStart);
   };
-  _selectWithModifier = (modifier, selectionStart) => {
+  _selectWithModifier = (modifier, currSelStart) => {
     let localState = this.stateManager.getLocalState();
+    let clientState = this.stateManager.getClientState();
 
     const selectedId = localState.get('selectedId');
     const visibleOrder = localState.get('visibleOrder');
     const visibleI = visibleOrder.findIndex(taskId => taskId === selectedId);
     const nextI = (visibleI + modifier) % visibleOrder.size;
+
+    let selectionStart = clientState.getIn([
+      'tasks_by_id',
+      visibleOrder.get(nextI),
+      'title'
+    ]).length;
+    if (currSelStart === 0) {
+      selectionStart = 0;
+    }
 
     localState = localState
       .set('selectedId', visibleOrder.get(nextI))
@@ -32,12 +44,17 @@ export default class ProjectSelectHandler {
     }
   };
   _selectValue = value => {
-    const localState = this.stateManager.getLocalState();
+    let localState = this.stateManager.getLocalState();
+    let clientState = this.stateManager.getClientState();
+
     if (localState.get('selectedId') !== value) {
-      this.stateManager._update(
-        { localState: localState.set('selectedId', value) },
-        false
+      localState = localState.set('selectedId', value);
+
+      [clientState, localState] = projectValidateStates(
+        clientState,
+        localState
       );
+      this.stateManager._update({ localState, clientState });
     }
   };
 }
