@@ -5,18 +5,21 @@ const unescapeMap = {
   '&gt;': '>',
   '&quot;': '"',
   '&#x27;': "'",
-  '&#x60;': '`',
+  '&#x60;': '`'
 };
+const test = false;
 
-const createEscaper = (map) => {
-  const escaper = (match) => map[match];
+const createEscaper = map => {
+  const escaper = match => map[match];
 
   const source = '(?:' + Object.keys(map).join('|') + ')';
   const testRegexp = RegExp(source);
   const replaceRegexp = RegExp(source, 'g');
-  return (string) => {
+  return string => {
     string = string == null ? '' : '' + string;
-    return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+    return testRegexp.test(string)
+      ? string.replace(replaceRegexp, escaper)
+      : string;
   };
 };
 
