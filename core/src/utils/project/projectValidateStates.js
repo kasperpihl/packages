@@ -223,7 +223,11 @@ export default function projectValidateStates(
   if (selectedId && !foundSelectedId) {
     localState = localState.set('selectedId', null).set('selectionState', null);
   }
-  if (localState.get('selectedId') && !localState.get('editing')) {
+  if (
+    localState.get('selectedId') &&
+    !localState.get('editing') &&
+    (hasAnyFilter || filteredTaskIds)
+  ) {
     localState = localState.set('editing', true);
   }
 
