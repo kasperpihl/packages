@@ -16,11 +16,44 @@ export default class ProjectEditHandler {
     [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState, clientState });
   };
+  attach = (taskId, attachment) => {
+    let clientState = this.stateManager.getClientState();
+    let localState = this.stateManager.getLocalState();
+
+    const newId = randomString(5);
+    const nextIndex = clientState.getIn(['ordering', taskId]) + 1;
+    const targetIndention = clientState.getIn(['indention', taskId]) + 1;
+
+    localState = localState.setIn(['expanded', taskId], true);
+
+    clientState = clientState.setIn(
+      ['tasks_by_id', newId],
+      fromJS({
+        task_id: newId,
+        title: attachment.title,
+        assignees: [],
+        due_date: null,
+        attachment
+      })
+    );
+
+    clientState = clientState.setIn(['indention', newId], targetIndention);
+
+    clientState = clientState.set(
+      'sortedOrder',
+      clientState.get('sortedOrder').insert(nextIndex, newId)
+    );
+
+    [clientState, localState] = projectValidateStates(clientState, localState);
+    this.stateManager._update({ localState, clientState });
+  };
+
   updateTitle = (id, title) => {
     let clientState = this.stateManager.getClientState();
     clientState = clientState.setIn(['tasks_by_id', id, 'title'], title);
     this.stateManager._update({ clientState }, `${id}-title`);
   };
+
   updateAssignees = (id, assignees) => {
     let clientState = this.stateManager.getClientState();
     clientState = clientState.setIn(
@@ -29,6 +62,7 @@ export default class ProjectEditHandler {
     );
     this.stateManager._update({ clientState });
   };
+
   deleteCompleted = () => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
@@ -50,6 +84,7 @@ export default class ProjectEditHandler {
     [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState, clientState });
   };
+
   delete = id => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
@@ -86,6 +121,7 @@ export default class ProjectEditHandler {
     [clientState, localState] = projectValidateStates(clientState, localState);
     this.stateManager._update({ localState, clientState });
   };
+
   enter = (id, selectionStart = null) => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
@@ -118,6 +154,7 @@ export default class ProjectEditHandler {
         due_date: null
       })
     );
+
     localState = localState.setIn(['expanded', newId], false);
     localState = localState.setIn(['hasChildren', newId], false);
     localState = localState.set('selectedId', newId);
