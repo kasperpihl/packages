@@ -1,6 +1,6 @@
 import * as types from '../redux/constants';
 import storeGet from './store/storeGet';
-import handleUpdatesNeeded from './handleUpdatesNeeded';
+import * as connectionActions from 'src/redux/connection/connectionActions';
 
 export default (endpoint, data, options = {}) => {
   let apiUrl = '';
@@ -13,13 +13,11 @@ export default (endpoint, data, options = {}) => {
   if (store) {
     apiUrl = `${store.getState().global.get('apiUrl')}/v1/`;
     const { auth, connection, global } = store.getState();
-    const updateRequired = connection.getIn(['versionInfo', 'updateRequired']);
-    const reloadRequired = connection.getIn(['versionInfo', 'reloadRequired']);
-    if (updateRequired || reloadRequired) {
+    const hasRequiredUpdate = connection.getIn(['clientUpdate', 'required']);
+    if (hasRequiredUpdate) {
       return Promise.resolve({
         ok: false,
-        update_required: updateRequired,
-        reload_required: reloadRequired
+        error: 'update_required'
       });
     }
 
@@ -72,8 +70,7 @@ export default (endpoint, data, options = {}) => {
           }
 
           if (store) {
-            handleUpdatesNeeded(res, store.getState(), store.dispatch);
-
+            store.dispatch(connectionActions.handleApiResponse(res));
             store.dispatch({
               type: endpoint,
               payload: res
@@ -88,6 +85,9 @@ export default (endpoint, data, options = {}) => {
             }, 1);
           }
         } else {
+          if (store) {
+            store.dispatch(connectionActions.handleApiResponse(res));
+          }
           if (res.error === 'not_authed' && store) {
             store.dispatch({ type: types.RESET_STATE });
           }

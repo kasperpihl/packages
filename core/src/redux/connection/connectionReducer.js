@@ -7,7 +7,8 @@ const initialState = fromJS({
   myId: null,
   unread: {},
   status: 'offline',
-  versionInfo: {}
+  clientUpdate: null,
+  maintenance: null
 });
 
 export default function connectionReducer(state = initialState, action) {
@@ -26,9 +27,9 @@ export default function connectionReducer(state = initialState, action) {
         if (data.deleted) {
           state = state.deleteIn(['unread', data.discussion_id]);
         } else {
-          if (data.followers) {
+          if (data.members) {
             const lastReadAt =
-              data.followers[state.get('myId')] ||
+              data.members[state.get('myId')] ||
               state.getIn(['unread', data.discussion_id]) ||
               null;
             const lastMessageAt = data.last_comment_at;
@@ -47,8 +48,10 @@ export default function connectionReducer(state = initialState, action) {
     case types.SET_LAST_VERSION: {
       return state.set('lastVersion', payload.version);
     }
-    case types.SET_UPDATE_STATUS: {
-      return state.mergeIn(['versionInfo'], fromJS(payload));
+    case types.SET_CONNECTION_INFO: {
+      return state
+        .set('clientUpdate', payload.clientUpdate)
+        .set('maintenance', payload.maintenance);
     }
     case types.SET_CONNECTION_STATUS: {
       return state

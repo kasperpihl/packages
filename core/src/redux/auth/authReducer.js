@@ -5,7 +5,7 @@ const initialState = fromJS({
   token: null
 });
 
-export default function globals(state = initialState, action) {
+export default function authReducer(state = initialState, action) {
   const { payload, type } = action;
   switch (type) {
     case 'user.signin':
