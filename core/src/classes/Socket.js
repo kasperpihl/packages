@@ -88,7 +88,7 @@ export default class Socket {
     if (url.includes('localhost')) {
       url = 'ws://localhost:7000';
     } else {
-      url = 'wss://socket.wspc.io';
+      url = 'wss://socket.swipesapp.com';
     }
 
     this.openSocket(url);
