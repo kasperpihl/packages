@@ -33,9 +33,13 @@ export default function connectionReducer(state = initialState, action) {
               state.getIn(['unread', data.discussion_id]) ||
               null;
             const lastMessageAt = data.last_comment_at;
+
             if (lastMessageAt) {
               if (lastMessageAt !== lastReadAt) {
-                state = state.setIn(['unread', data.discussion_id], lastReadAt);
+                state = state.setIn(
+                  ['unread', data.discussion_id],
+                  lastMessageAt
+                );
               } else {
                 state = state.deleteIn(['unread', data.discussion_id]);
               }
