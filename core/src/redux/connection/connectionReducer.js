@@ -6,6 +6,7 @@ const initialState = fromJS({
   lastVersion: null,
   myId: null,
   unread: {},
+  unreadByTeam: {},
   status: 'offline',
   clientUpdate: null,
   maintenance: null
@@ -18,30 +19,42 @@ export default function connectionReducer(state = initialState, action) {
     case 'me.init': {
       return state
         .set('myId', payload.me.user_id)
-        .set('unread', fromJS(payload.unread))
+        .set('unreadByTeam', fromJS(payload.unread_by_team))
         .set('lastConnect', payload.timestamp);
     }
     case 'update': {
       const { type, data } = payload;
-      if (type === 'discussion') {
+      if (type === 'discussion' && data.owned_by) {
         if (data.deleted) {
-          state = state.deleteIn(['unread', data.discussion_id]);
+          state = state.deleteIn([
+            'unreadByTeam',
+            data.owned_by,
+            data.discussion_id
+          ]);
         } else {
           if (data.members) {
             const lastReadAt =
               data.members[state.get('myId')] ||
-              state.getIn(['unread', data.discussion_id]) ||
+              state.getIn([
+                'unreadByTeam',
+                data.owned_by,
+                data.discussion_id
+              ]) ||
               null;
             const lastMessageAt = data.last_comment_at;
 
             if (lastMessageAt) {
               if (lastMessageAt !== lastReadAt) {
                 state = state.setIn(
-                  ['unread', data.discussion_id],
+                  ['unreadByTeam', data.owned_by, data.discussion_id],
                   lastMessageAt
                 );
               } else {
-                state = state.deleteIn(['unread', data.discussion_id]);
+                state = state.deleteIn([
+                  'unreadByTeam',
+                  data.owned_by,
+                  data.discussion_id
+                ]);
               }
             }
           }
