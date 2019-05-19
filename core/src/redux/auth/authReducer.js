@@ -12,6 +12,7 @@ export default function authReducer(state = initialState, action) {
     case 'user.signup': {
       return state.set('token', payload.token);
     }
+    case 'user.delete':
     case 'user.signout':
     case types.RESET_STATE: {
       return initialState;
