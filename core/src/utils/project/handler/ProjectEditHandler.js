@@ -63,6 +63,15 @@ export default class ProjectEditHandler {
     this.stateManager._update({ clientState });
   };
 
+  updateDueDate = (taskId, dueDate) => {
+    let clientState = this.stateManager.getClientState();
+    clientState = clientState.setIn(
+      ['tasks_by_id', taskId, 'due_date'],
+      dueDate
+    );
+    this.stateManager._update({ clientState });
+  };
+
   deleteCompleted = () => {
     let clientState = this.stateManager.getClientState();
     let localState = this.stateManager.getLocalState();
