@@ -25,10 +25,11 @@ export default class Socket {
     const BUFFER = 1000;
     let lastTime = new Date().getTime();
 
-    setInterval(function() {
+    setInterval(() => {
       const currentTime = new Date().getTime();
+      // Checking if computer just awoke from sleeping.
       if (currentTime > lastTime + TIMEOUT + BUFFER) {
-        this.handleActive();
+        this.checkConnection();
       }
       lastTime = currentTime;
     }, TIMEOUT);
@@ -107,12 +108,8 @@ export default class Socket {
 
     this.openSocket(url);
   }
-  handleOffline = () => {
-    if (this.ws && this.ws.readyState === 1) {
-      this.ws.close();
-    }
-  };
-  handleActive = () => {
+
+  checkConnection = () => {
     console.log('handleActive');
     if (this.ws && this.ws.readyState === 1) {
       console.log('sending ping');
