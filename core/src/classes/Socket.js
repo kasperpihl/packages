@@ -20,6 +20,19 @@ export default class Socket {
       window.addEventListener('beforeunload', () => this.forceClose(true));
     }
   }
+  checkWakeInterval = () => {
+    const TIMEOUT = 5000;
+    const BUFFER = 1000;
+    let lastTime = new Date().getTime();
+
+    setInterval(function() {
+      const currentTime = new Date().getTime();
+      if (currentTime > lastTime + TIMEOUT + BUFFER) {
+        this.handleActive();
+      }
+      lastTime = currentTime;
+    }, TIMEOUT);
+  };
   subscribe = handler => {
     const id = randomString(5);
     this.subscriptions[id] = handler;
@@ -58,9 +71,11 @@ export default class Socket {
     }
   }
   onCloseHandler = () => {
+    console.log('closehandler');
     this.isConnecting = false;
     this.isConnected = false;
     this.reconnect_attempts += 1;
+    clearTimeout(this.forceCloseTimer);
     let nextRetry;
     if (this.token) {
       const time = this.timerForAttempt();
@@ -84,7 +99,6 @@ export default class Socket {
   connect() {
     const { getState } = this.store;
     let url = getState().global.get('apiUrl');
-
     if (url.includes('localhost')) {
       url = 'ws://localhost:7000';
     } else {
@@ -93,6 +107,21 @@ export default class Socket {
 
     this.openSocket(url);
   }
+  handleOffline = () => {
+    if (this.ws && this.ws.readyState === 1) {
+      this.ws.close();
+    }
+  };
+  handleActive = () => {
+    console.log('handleActive');
+    if (this.ws && this.ws.readyState === 1) {
+      console.log('sending ping');
+      this.ws.send('ping');
+      this.forceCloseTimer = setTimeout(() => {
+        this.ws.close();
+      }, 1500);
+    }
+  };
   openSocket(url) {
     if (this.isConnecting || this.forceOffline) {
       return;
@@ -119,6 +148,7 @@ export default class Socket {
     this.ws.onmessage = this.message;
 
     this.ws.onclose = () => {
+      console.log('closing');
       this.onCloseHandler();
     };
   }
@@ -151,6 +181,11 @@ export default class Socket {
     });
   };
   message = message => {
+    if (message.data === 'pong') {
+      console.log('received pong');
+      clearInterval(this.forceCloseTimer);
+      return;
+    }
     const data = JSON.parse(message.data);
     const { type, payload } = data;
 
