@@ -16,6 +16,7 @@ export default class Socket {
     store.dispatch({ type: types.SET_LAST_VERSION, payload: { version } });
     store.subscribe(this.storeChange);
 
+    this.checkWakeInterval();
     if (window.addEventListener) {
       window.addEventListener('beforeunload', () => this.forceClose(true));
     }
