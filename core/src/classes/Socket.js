@@ -198,9 +198,6 @@ export default class Socket {
 
   handleUpdate = update => {
     if (this.lastUpdateId !== update.update_id) {
-      if (window && window.ipcListener) {
-        window.ipcListener.handleDesktopNotifications(update);
-      }
       this.lastUpdateId = update.update_id;
       update.rows.forEach(r => {
         Object.values(this.subscriptions).forEach(handler => handler(r));
